@@ -14,4 +14,4 @@ jobs:
         env:
           TESTER_TOKEN: ${{ secrets.TESTER_TOKEN }}
         run: |
-          rover test --path /opt/workspace/rust-hse/problems/$GITHUB_REF_NAME --move-files . --report-to manytask
+          rover test --path "/opt/workspace/rust-hse/problems/$GITHUB_REF_NAME" --move-files . --report-to manytask
