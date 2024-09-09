@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    # Problems
+    "",
+
+    # Tools
+    "tools/rover",
+
+    # Additional
+    "",
+]
