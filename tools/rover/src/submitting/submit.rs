@@ -4,9 +4,9 @@ use colored::Colorize;
 use indoc::printdoc;
 use std::{path::Path, process};
 
-const MANYTASK_URL: &str = "https://раст-хсе.рф/";
-const SCOREBOARD_URL: &str = "https://раст-хсе.рф/scoreboard";
-const ACTIONS_URL: &str = "https://раст-хсе.рф/repo/actions";
+const MANYTASK_URL: &str = "https://rust-hse-2024.azazkamaz.me";
+const SCOREBOARD_URL: &str = "https://rust-hse-2024.azazkamaz.me/scoreboard";
+const ACTIONS_URL: &str = "https://rust-hse-2024.azazkamaz.me/repo/actions";
 
 pub fn submit_problem(problem_path: &Path, message: &str) -> Result<()> {
     let repo = Repository::from_path(problem_path)?;

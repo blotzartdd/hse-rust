@@ -1,16 +1,16 @@
-# Rust HSE 2023
+# Rust HSE 2024
 
 ## Ссылки
 
 ### Основное
 
-- Сайт курса: [раст-хсе.рф](https://раст-хсе.рф) или [rust-hse.ru](https://rust-hse.ru)
+- Сайт курса: [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me)
 - Таблица с результатами сдачи задач: https://docs.google.com/spreadsheets/d/1R02622hEAEfSdK18Ng6BFx6Nxham8qMohZH8whE2Gls/edit#gid=0
 
 ### Коммуникация
 
-- Телеграм канал: <https://t.me/rust2023>
-- Телеграм чат: <https://t.me/+g1Xgc-J_WkpkZjky>.
+- Телеграм канал: <https://t.me/rust24_25>
+- Телеграм чат: <https://t.me/+9HOKbezDmmw5YzQy>.
 
 ### Материалы
 
@@ -20,15 +20,15 @@
 
 ## Настройка окружения
 
-Вся работа с курсом организована на GitHub, у Вас будет собственный репозиторий для решения задач, а также простенький UI [раст-хсе.рф](https://раст-хсе.рф) для просмотра задач, дедлайнов и т.п.
+Вся работа с курсом организована на GitHub, у Вас будет собственный репозиторий для решения задач, а также простенький UI [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me) для просмотра задач, дедлайнов и т.п.
 
 Для начала работы с курсом проследуйте инструкциям ниже. При любых трудностях обращайтесь в телеграм чат курса.
 
-### Регистрация в системе [раст-хсе.рф](https://раст-хсе.рф)
+### Регистрация в системе [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me)
 
-1. Зарегистрируйтесь в [тестирующей системе](https://раст-хсе.рф). Для входа Вам потребуется аккаунт на [GitHub](github.com). Секретный код: `krusty-krab`. 
+1. Зарегистрируйтесь в [тестирующей системе](https://rust-hse-2024.azazkamaz.me). Для входа Вам потребуется аккаунт на [GitHub](github.com). Секретный код: `krusty-krab-2`. 
 
-1. После регистрации автоматика добавит Вас в GitHub организацию [rust-hse](https://github.com/rust-hse) и создаст там для Вас копию репозитория с задачами [rust-hse/rust-hse-2023](https://github.com/rust-hse/rust-hse-2023).
+1. После регистрации автоматика добавит Вас в GitHub организацию [rust-hse](https://github.com/rust-hse) и создаст там для Вас копию репозитория с задачами [rust-hse/rust-hse-2024](https://github.com/rust-hse/rust-hse-2024).
 
 ### Настройка Git
 
@@ -88,35 +88,35 @@
 
 ### Клонирование репозитория на компьютер
 
-В [нашей GitHub огранизации](https://github.com/orgs/rust-hse/repositories) Вам будут доступны два репозитория: публичный `rust-hse-2023` и Ваш личный `rust-hse-2023-<your login>`.
+В [нашей GitHub огранизации](https://github.com/orgs/rust-hse/repositories) Вам будут доступны два репозитория: публичный `rust-hse-2024` и Ваш личный `rust-hse-2024-<your login>`.
 Для сдачи задач Вы будете работать со своим личным репозиторием.
 
 1. Передите на страницу своего репозитория (если вы не читаете эту инструкцию уже с него).
-   Его можно найти на [раст-хсе.рф](https://раст-хсе.рф), перейдя по ссылке `MY REPO`, или на странице репозиториев организации: https://github.com/orgs/rust-hse/repositories.
+   Его можно найти на [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me), перейдя по ссылке `MY REPO`, или на странице репозиториев организации: https://github.com/orgs/rust-hse/repositories.
 
 1. Склонируйте cвой репозиторий с задачами.
    Для этого найдите адрес репозитория:
 
-   ![github repo clone](https://rust-hse.ru/static/gh_clone_url.png)
+   ![github repo clone](https://rust-hse-2024.azazkamaz.me/static/gh_clone_url.png)
 
    Какой выбрать адрес, зависит от того, как вы настроили git на предыдущем шаге:
 
    - Если вы использовали GitHub CLI, то попробуйте выполнить
 
      ```
-     $ git clone https://github.com/rust-hse/rust-hse-2023-<your login>.git
+     $ git clone https://github.com/rust-hse/rust-hse-2024-<your login>.git
      ```
 
      или
 
      ```
-     $ gh repo clone rust-hse/rust-hse-2023-<your login>
+     $ gh repo clone rust-hse/rust-hse-2024-<your login>
      ```
 
    - Если вы добавляли SSH ключ, то может сработать git-адрес:
 
      ```
-     $ git clone git@github.com:rust-hse/rust-hse-2023-<your login>.git
+     $ git clone git@github.com:rust-hse/rust-hse-2024-<your login>.git
      ```
 
 1. Каждую неделю после занятий вам надо будет обновлять репозиторий, чтобы у вас появились условия
@@ -156,8 +156,8 @@
 1. Напишите правильную реализацию функции `add` в `tutorial/add/src/lib.rs`.
 1. Установите утилиту `rover` для тестирования и отправки решений на сервер командой `cargo install --path tools/rover` (запускайте из корня репозитория).
 1. Запустите локальные тесты командой `rover test`, находясь в директории `tutorial/add`. Убедитесь, что они проходят.
-1. Отправьте своё решение на сервер командой `rover submit`. Ваш сабмит должен появиться по ссылке "SUBMITS" на [раст-хсе.рф](https://раст-хсе.рф).
+1. Отправьте своё решение на сервер командой `rover submit`. Ваш сабмит должен появиться по ссылке "SUBMITS" на [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me).
 После успешного прохождения тестов вам должно начислиться 0 баллов в
-[таблице с баллами](https://docs.google.com/spreadsheets/d/1R02622hEAEfSdK18Ng6BFx6Nxham8qMohZH8whE2Gls/edit#gid=0).
+[таблице с баллами](https://docs.google.com/spreadsheets/d/1KPk-WxWK4K_9AQZusKAgXgZw1Inz3zVgLnWft8AVIps/edit#gid=0).
 
 Если на каком-то этапе у вас возникли проблемы - пишите в чат курса.
