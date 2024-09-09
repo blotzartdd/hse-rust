@@ -1,7 +1,12 @@
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
 jobs:
   sync:
     runs-on: self-hosted
+    if: github.repository == 'rust-hse/rust-hse-2024'
     steps:
       - uses: getsentry/action-github-app-token@v2
         id: app-token
