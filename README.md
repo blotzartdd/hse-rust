@@ -5,7 +5,7 @@
 ### Основное
 
 - Сайт курса: [https://rust-hse-2024.azazkamaz.me](https://rust-hse-2024.azazkamaz.me)
-- Таблица с результатами сдачи задач: https://docs.google.com/spreadsheets/d/1R02622hEAEfSdK18Ng6BFx6Nxham8qMohZH8whE2Gls/edit#gid=0
+- Таблица с результатами сдачи задач: https://docs.google.com/spreadsheets/d/1KPk-WxWK4K_9AQZusKAgXgZw1Inz3zVgLnWft8AVIps/edit#gid=0
 
 ### Коммуникация
 
