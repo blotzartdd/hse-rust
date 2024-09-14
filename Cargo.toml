@@ -2,6 +2,10 @@
 members = [
     # Problems
     "problems/tutorial/add",
+    "problems/basics/fibonacci",
+    "problems/basics/palindrome",
+    "problems/basics/prime_numbers",
+    "problems/basics/bracket_sequence",
 
     # Tools
     "tools/rover",

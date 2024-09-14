@@ -1,0 +1,5 @@
+[package]
+name = "bracket_sequence"
+version = "0.1.0"
+authors = ["Dmitrii Zakhrov <dimaz1301@gmail.com>"]
+edition = "2021"
