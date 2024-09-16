@@ -1,0 +1,17 @@
+on:
+  push:
+    branches-ignore: main
+
+jobs:
+  test:
+    name: Test solution and report results
+    runs-on: self-hosted
+    container: cr.yandex/crppb394ukf52qmu8sgj/ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Test & Report
+        env:
+          TESTER_TOKEN: ${{ secrets.TESTER_TOKEN }}
+        run: |
+          rover test --path "/opt/workspace/rust-hse/problems/$GITHUB_REF_NAME" --move-files . --report-to manytask
