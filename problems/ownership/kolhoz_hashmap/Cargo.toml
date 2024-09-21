@@ -1,0 +1,5 @@
+[package]
+name = "kolhoz_hashmap"
+version = "0.1.0"
+authors = ["Dmitrii Zakharov <dimaz1301@gmail.com>"]
+edition = "2021"
