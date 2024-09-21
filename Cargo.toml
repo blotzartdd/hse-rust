@@ -6,6 +6,10 @@ members = [
     "problems/basics/palindrome",
     "problems/basics/prime_numbers",
     "problems/basics/bracket_sequence",
+    "problems/ownership/add_references",
+    "problems/ownership/where_k_th_ordinal_element_greater",
+    "problems/ownership/flatten",
+    "problems/ownership/kolhoz_hashmap",
 
     # Tools
     "tools/rover",

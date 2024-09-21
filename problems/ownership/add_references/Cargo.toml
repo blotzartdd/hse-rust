@@ -1,0 +1,5 @@
+[package]
+name = "add_references"
+version = "0.1.0"
+authors = ["Evgenii Kazakov <evgenstf@gmail.com>"]
+edition = "2021"
