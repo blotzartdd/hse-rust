@@ -11,5 +11,9 @@ pub fn where_k_th_ordinal_element_greater<'a>(
     l.sort();
     r.sort();
 
-    if l[k] >= r[k] {lhs} else {rhs}
+    if l[k] >= r[k] {
+        lhs
+    } else {
+        rhs
+    }
 }
