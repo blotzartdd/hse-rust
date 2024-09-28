@@ -10,6 +10,9 @@ members = [
     "problems/ownership/where_k_th_ordinal_element_greater",
     "problems/ownership/flatten",
     "problems/ownership/kolhoz_hashmap",
+    "problems/structs/lru_cache",
+    "problems/structs/trust",
+    "problems/structs/minmax_queue",
 
     # Tools
     "tools/rover",
