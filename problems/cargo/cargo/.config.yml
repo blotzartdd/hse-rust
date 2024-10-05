@@ -1,0 +1,20 @@
+toolchain: stable
+allowed-patterns:
+  - src/config.rs
+  - src/lib.rs
+  - src/trait.rs
+  - src/games/mod.rs
+  - src/games/flip_coin/config.rs
+  - src/games/flip_coin/game.rs
+  - src/games/flip_coin/mod.rs
+  - src/games/roll_dice/config.rs
+  - src/games/roll_dice/game.rs
+  - src/games/roll_dice/mod.rs
+steps:
+  linters:
+    - forbid-unsafe
+    - cargo-fmt
+    - cargo-clippy
+  testing:
+    - cargo-test
+    - cargo-test-debug
