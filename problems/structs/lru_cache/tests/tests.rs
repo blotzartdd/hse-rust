@@ -61,7 +61,7 @@ fn check_zero_capacity() {
 
 #[test]
 fn should_compile() {
-    #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
     struct Key {
         _key: i32,
     }
@@ -176,14 +176,17 @@ fn small_capacity() {
             0 => {
                 cache.clear();
                 naive.clear();
+                println! {"CLEAR ALL: {:?}", cache};
             }
             1..=999 => {
                 let key = rng.gen_range(0..30);
+                println! {"GET KEY: {}, {:?}", key, cache};
                 assert_eq!(cache.get(&key), naive.get(&key));
                 assert_eq!(cache.len(), naive.len());
             }
             1000..=1999 => {
                 let key = rng.gen_range(0..30);
+                println! {"GET MUT KEY: {}, {:?}", key, cache};
                 if let Some(naive_value) = naive.get_mut(&key) {
                     let new_value = rng.gen::<i8>();
                     let value = cache.get_mut(&key).expect(&format!(
@@ -200,6 +203,7 @@ fn small_capacity() {
             _ => {
                 let key = rng.gen_range(0..30);
                 let value = rng.gen::<i8>();
+                println! {"ADD KEY {} WITH VALUE {} IN {:?}", key, value, cache};
                 assert_eq!(cache.insert(key, value), naive.insert(key, value));
                 assert_eq!(cache.len(), naive.len());
             }
