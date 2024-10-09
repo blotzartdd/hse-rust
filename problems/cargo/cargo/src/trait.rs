@@ -1,22 +1,23 @@
 #![forbid(unsafe_code)]
 
-trait FairRound {
+pub trait FairRound {
     fn play(&mut self) -> u8;
 }
 
-trait UnfairRound {
+pub trait UnfairRound {
     fn play(&mut self) -> u8;
 }
 
-trait Round: FairRound + UnfairRound {}
+pub trait Round: FairRound + UnfairRound {}
 impl<T> Round for T where T: FairRound + UnfairRound {}
 
-trait InitGame<GameConfig> {
+pub trait InitGame<GameConfig> {
     fn init(config: GameConfig) -> Self;
 }
 
-fn init_game<Game, GameConfig>(config: GameConfig) -> Game
-where Game: InitGame<GameConfig> {
-    // TODO: your code goes here.
-    unimplemented!()
+pub fn init_game<Game, GameConfig>(config: GameConfig) -> Game
+where
+    Game: InitGame<GameConfig>,
+{
+    Game::init(config)
 }

@@ -23,6 +23,7 @@ impl FlipCoinGame {
             Some(Ordering::Greater) => self.config.players.0,
         }
     }
+
     fn update_game(&mut self, winner: u8, delta: f64) {
         if self.config.players.0 == winner {
             self.config.players_proba.1 += delta;
