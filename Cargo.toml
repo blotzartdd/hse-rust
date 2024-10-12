@@ -14,6 +14,10 @@ members = [
     "problems/structs/trust",
     "problems/structs/minmax_queue",
     "problems/cargo/cargo",
+    "problems/iterators/basics",
+    "problems/iterators/shrek",
+    "problems/iterators/flatten2",
+    "problems/iterators/split",
 
     # Tools
     "tools/rover",
