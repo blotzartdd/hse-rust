@@ -1,16 +1,13 @@
 #![forbid(unsafe_code)]
 
 pub fn add2(iterator: impl Iterator<Item = i32>) -> impl Iterator<Item = i32> {
-    // TODO: your code goes here.
-    unimplemented!()
+    iterator.map(|x| x + 2)
 }
 
 pub fn div3() -> impl Iterator<Item = i32> {
-    // TODO: your code goes here.
-    unimplemented!()
+    (1..).filter(|x| x % 3 == 0)
 }
 
 pub fn take_n(iterator: impl Iterator<Item = i32>, n: usize) -> Vec<i32> {
-    // TODO: your code goes here.
-    unimplemented!()
+    iterator.take(n).collect()
 }
