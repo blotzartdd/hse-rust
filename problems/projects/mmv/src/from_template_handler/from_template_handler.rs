@@ -24,7 +24,7 @@ impl MatchedFiles {
             Self::get_matched_files_info(from_path, regex_pattern, matching_count);
 
         if matched_files.is_empty() {
-            eprintln!("mmv: Files for pattern '{}' not found", from_pattern);
+            eprintln!("mmv: Files for pattern '{}' not found", from_path.join(from_pattern).to_str().unwrap());
             process::exit(42);
         }
 
@@ -57,7 +57,12 @@ impl MatchedFiles {
                     let filepath = file.path();
                     let filename = filepath.to_str().unwrap().split('/').last().unwrap();
 
-                    let matchings = regex_pattern.captures(filename).unwrap();
+                    let matchings_option = regex_pattern.captures(filename);
+                    if matchings_option.is_none() { 
+                        continue;
+                    }
+
+                    let matchings = matchings_option.unwrap();
                     if matchings[0] == *filename {
                         let matched_filepath = from_path.join(filename);
                         matched_files.push(matched_filepath.clone());

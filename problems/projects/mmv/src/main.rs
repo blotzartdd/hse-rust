@@ -1,14 +1,10 @@
-use mmv::from_path_handler::from_path_handler::MatchedFiles;
+use mmv::from_template_handler::from_template_handler::MatchedFiles;
+use mmv::to_template_handler::to_template_handler::FileMover;
 use mmv::input_parser::parser::Arguments;
 
 fn main() {
     let arguments = Arguments::new();
     let matched_files = MatchedFiles::new(&arguments.from_path, &arguments.from_pattern);
-    for el in matched_files.file_path_matchings {
-        print!("{:?}: ", el.0);
-        for matching in el.1 {
-            print!("{} ", matching);
-        }
-        println!("");
-    }
+    let file_mover = FileMover::new(&arguments.to_path, &arguments.to_pattern);
+    file_mover.move_files(&matched_files);
 }

@@ -2,6 +2,8 @@ use clap::Parser;
 use std::path::{Path, PathBuf};
 use std::process;
 
+use crate::utils::utils::check_folder_existence;
+
 #[derive(Parser, Debug)]
 struct ArgumentsParse {
     from_template: String,
@@ -25,25 +27,7 @@ impl Arguments {
         let to_template_folder = to.parent();
 
         if from_template_folder.is_some() && from_template_folder.unwrap().to_str() != Some("") {
-            let folder_exist_result = from_template_folder.unwrap().try_exists();
-            let is_folder_exist = match folder_exist_result {
-                Ok(result) => result,
-                Err(_) => {
-                    eprintln!(
-                        "mmv: Unable to check folder existence of '{}'",
-                        from_template_folder.unwrap().to_str().unwrap()
-                    );
-                    process::exit(42);
-                }
-            };
-
-            if !is_folder_exist {
-                eprintln!(
-                    "mmv: Folder '{}' does not exist",
-                    from_template_folder.unwrap().to_str().unwrap()
-                );
-                process::exit(42);
-            }
+            check_folder_existence(from_template_folder.unwrap());
         }
 
         Arguments {
