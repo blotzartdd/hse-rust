@@ -1,6 +1,6 @@
 use mmv::from_template_handler::from_template_handler::MatchedFiles;
-use mmv::to_template_handler::to_template_handler::FileMover;
 use mmv::input_parser::parser::Arguments;
+use mmv::to_template_handler::to_template_handler::FileMover;
 
 fn main() {
     let arguments = Arguments::new();

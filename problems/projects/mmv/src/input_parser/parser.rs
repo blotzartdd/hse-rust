@@ -1,6 +1,5 @@
 use clap::Parser;
 use std::path::{Path, PathBuf};
-use std::process;
 
 use crate::utils::utils::check_folder_existence;
 
