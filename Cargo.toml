@@ -23,5 +23,5 @@ members = [
     "tools/rover",
 
     # Additional
-    "",
+    "", "problems/projects/mmv",
 ]
