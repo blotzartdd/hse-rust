@@ -1,8 +1,8 @@
 use std::path::Path;
 use std::process;
 
-pub fn escape_special_regex_chars(pattern: &str) -> String {
-    let special_chars = r"[]{}()|^$\?+";
+pub fn escape_special_regex_characters(pattern: &str) -> String {
+    let special_chars = r"[]{}()|^$\?+.";
 
     let mut new_pattern = String::new();
     for ch in pattern.chars() {
@@ -15,10 +15,10 @@ pub fn escape_special_regex_chars(pattern: &str) -> String {
     new_pattern
 }
 
-pub fn check_folder_existence(folder_path: &Path) {
+pub fn is_folder_exist(folder_path: &Path) -> bool {
     let folder_exist_result = folder_path.try_exists();
-    let is_folder_exist = match folder_exist_result {
-        Ok(result) => result,
+    match folder_exist_result {
+        Ok(result) => return result,
         Err(_) => {
             eprintln!(
                 "mmv: Unable to check folder existence of '{}'",
@@ -26,14 +26,6 @@ pub fn check_folder_existence(folder_path: &Path) {
             );
             process::exit(42);
         }
-    };
-
-    if !is_folder_exist {
-        eprintln!(
-            "mmv: Folder '{}' does not exist",
-            folder_path.to_str().unwrap()
-        );
-        process::exit(42);
     }
 }
 
@@ -49,4 +41,55 @@ pub fn is_file_exist(filepath: &Path) -> bool {
             process::exit(42);
         }
     };
+}
+
+#[cfg(test)]
+mod test_escape_special_regex_characterss {
+    use crate::utils::utils::escape_special_regex_characters;
+
+    #[test]
+    fn no_special_characters() {
+        let mut test_string = "abracadabra";
+        assert_eq!(escape_special_regex_characters(test_string), test_string);
+
+        test_string = "bimbimbambam bambambimbim";
+        assert_eq!(escape_special_regex_characters(test_string), test_string);
+    }
+
+    #[test]
+    fn not_ascii_characters() {
+        let mut test_string = "русский язык";
+        assert_eq!(escape_special_regex_characters(test_string), test_string);
+
+        test_string = "𡨸漢漢字漢字";
+        assert_eq!(escape_special_regex_characters(test_string), test_string);
+    }
+
+    #[test]
+    fn simple_changes() {
+        let mut test_string = "[abcd]";
+        assert_eq!(escape_special_regex_characters(test_string), "\\[abcd\\]");
+
+        test_string = "$print^pretty+string";
+        assert_eq!(
+            escape_special_regex_characters(test_string),
+            "\\$print\\^pretty\\+string"
+        );
+    }
+
+    #[test]
+    fn all_symbols() {
+        let test_string = r"[]{}()|^$\?+.";
+        assert_eq!(
+            escape_special_regex_characters(test_string),
+            "\\[\\]\\{\\}\\(\\)\\|\\^\\$\\\\\\?\\+\\."
+        );
+    }
+
+    #[test]
+    fn regular_expression() {
+        let test_string = r"2020-03-12T13:34:56\.123Z INFO\[org\.example\.Class\]";
+        assert_eq!(escape_special_regex_characters(test_string),
+            "2020-03-12T13:34:56\\\\\\.123Z INFO\\\\\\[org\\\\\\.example\\\\\\.Class\\\\\\]")
+    }
 }

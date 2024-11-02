@@ -1,5 +1,5 @@
 use crate::from_template_handler::from_template_handler::MatchedFiles;
-use crate::utils::utils::{check_folder_existence, is_file_exist};
+use crate::utils::utils::{is_file_exist, is_folder_exist};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -22,7 +22,14 @@ impl FileMover {
     }
 
     pub fn move_files(self, matched_files: &MatchedFiles) {
-        check_folder_existence(&self.to_path);
+        if !is_folder_exist(&self.to_path) {
+            eprintln!(
+                "mmv: Folder '{}' does not exist",
+                self.to_path.to_str().unwrap()
+            );
+            process::exit(42);
+        }
+
         let new_filepath_hashmap = self.get_new_filepath_hashmap(
             &matched_files.filepath_vec,
             &matched_files.filepath_matchings,
@@ -72,8 +79,8 @@ impl FileMover {
         }
 
         if marker_index <= matchings.len() {
-                eprintln!("mmv: Marker indexes were not correctly covered by *");
-                process::exit(42);
+            eprintln!("mmv: Marker indexes were not correctly covered by *");
+            process::exit(42);
         }
 
         new_filename

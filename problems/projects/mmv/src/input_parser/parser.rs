@@ -1,7 +1,8 @@
 use clap::Parser;
 use std::path::{Path, PathBuf};
+use std::process;
 
-use crate::utils::utils::check_folder_existence;
+use crate::utils::utils::is_folder_exist;
 
 #[derive(Parser, Debug)]
 /// PARSEEER
@@ -33,7 +34,13 @@ impl Arguments {
         let to_template_folder = to_template.parent();
 
         if from_template_folder.is_some() && from_template_folder.unwrap().to_str() != Some("") {
-            check_folder_existence(from_template_folder.unwrap());
+            if !is_folder_exist(from_template_folder.unwrap()) {
+                eprintln!(
+                    "mmv: Folder '{}' does not exist",
+                    from_template_folder.unwrap().to_str().unwrap()
+                );
+                process::exit(42);
+            }
         }
 
         Arguments {

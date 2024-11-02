@@ -1,4 +1,4 @@
-use crate::utils::utils::escape_special_regex_chars;
+use crate::utils::utils::escape_special_regex_characters;
 use regex::Regex;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -39,7 +39,7 @@ impl MatchedFiles {
 
     fn make_correct_pattern(pattern: &str) -> String {
         let mut pattern = (*pattern).to_string();
-        pattern = escape_special_regex_chars(&pattern);
+        pattern = escape_special_regex_characters(&pattern);
         pattern = pattern.replace("*", "(.*)");
 
         pattern
