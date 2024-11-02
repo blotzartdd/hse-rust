@@ -36,3 +36,17 @@ pub fn check_folder_existence(folder_path: &Path) {
         process::exit(42);
     }
 }
+
+pub fn is_file_exist(filepath: &Path) -> bool {
+    let file_exist_result = filepath.try_exists();
+    match file_exist_result {
+        Ok(result) => return result,
+        Err(_) => {
+            eprintln!(
+                "mmv: Unable to check file existence of '{}'",
+                filepath.to_str().unwrap()
+            );
+            process::exit(42);
+        }
+    };
+}

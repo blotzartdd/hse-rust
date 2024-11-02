@@ -5,8 +5,8 @@ use std::path::PathBuf;
 use std::process;
 
 pub struct MatchedFiles {
-    pub file_path_vec: Vec<PathBuf>,
-    pub file_path_matchings: HashMap<PathBuf, Vec<String>>,
+    pub filepath_vec: Vec<PathBuf>,
+    pub filepath_matchings: HashMap<PathBuf, Vec<String>>,
 }
 
 impl MatchedFiles {
@@ -32,8 +32,8 @@ impl MatchedFiles {
         }
 
         MatchedFiles {
-            file_path_vec: matched_files,
-            file_path_matchings: matched_files_matchings,
+            filepath_vec: matched_files,
+            filepath_matchings: matched_files_matchings,
         }
     }
 

@@ -1,57 +1,57 @@
 use crate::from_template_handler::from_template_handler::MatchedFiles;
-use crate::utils::utils::check_folder_existence;
+use crate::utils::utils::{check_folder_existence, is_file_exist};
+use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+use std::process;
 
 pub struct FileMover {
     pub to_path: PathBuf,
     pub to_pattern: String,
+    pub force_flag: bool,
 }
 
 impl FileMover {
-    pub fn new(to_path: &PathBuf, to_pattern: &str) -> FileMover {
+    pub fn new(to_path: &PathBuf, to_pattern: &str, force_flag: bool) -> FileMover {
         FileMover {
             to_path: to_path.clone(),
             to_pattern: to_pattern.to_string(),
+            force_flag,
         }
     }
 
     pub fn move_files(self, matched_files: &MatchedFiles) {
         check_folder_existence(&self.to_path);
+        let new_filepath_hashmap = self.get_new_filepath_hashmap(
+            &matched_files.filepath_vec,
+            &matched_files.filepath_matchings,
+        );
 
-        for file_path in matched_files.file_path_vec.iter() {
-            matched_files
-                .file_path_matchings
-                .get(file_path)
-                .into_iter()
-                .for_each(|matching_vec| {
-                    let new_filename =
-                        Self::replace_markers_with_matchings(&self.to_pattern, matching_vec);
-                    let new_filepath = self.to_path.join(new_filename.clone());
-
-                    let _ = match Self::move_file(
-                        file_path.to_str().unwrap(),
-                        new_filepath.to_str().unwrap(),
-                    ) {
-                        Ok(_) => Ok(()),
-                        Err(err) => {
-                            eprintln!(
-                                "mmv: Error when try to move '{}': {}",
-                                file_path.to_str().unwrap(),
-                                err
-                            );
-                            Err(err)
-                        }
-                    };
-
-                    println!(
-                        "{} -> {}",
-                        file_path.to_str().unwrap(),
-                        new_filepath.to_str().unwrap()
+        for (filepath, new_filepath) in new_filepath_hashmap.into_iter() {
+            match Self::move_file(filepath.to_str().unwrap(), new_filepath.to_str().unwrap()) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!(
+                        "mmv: Error {} when try to move {}",
+                        err,
+                        filepath.to_str().unwrap()
                     );
-                });
+                    process::exit(42);
+                }
+            }
+
+            println!(
+                "{} -> {}",
+                filepath.to_str().unwrap(),
+                new_filepath.to_str().unwrap()
+            );
         }
+    }
+
+    fn move_file(source: &str, destination: &str) -> Result<(), io::Error> {
+        fs::rename(source, destination)?;
+        Ok(())
     }
 
     fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
@@ -69,8 +69,33 @@ impl FileMover {
         new_filename
     }
 
-    fn move_file(source: &str, destination: &str) -> Result<(), io::Error> {
-        fs::rename(source, destination)?;
-        Ok(())
+    fn get_new_filepath_hashmap(
+        self,
+        filepath_vec: &Vec<PathBuf>,
+        filepath_matchings: &HashMap<PathBuf, Vec<String>>,
+    ) -> HashMap<PathBuf, PathBuf> {
+        let mut new_filepath_hashmap = HashMap::new();
+        for filepath in filepath_vec.iter() {
+            filepath_matchings
+                .get(filepath)
+                .into_iter()
+                .for_each(|matching_vec| {
+                    let new_filename =
+                        Self::replace_markers_with_matchings(&self.to_pattern, matching_vec);
+                    let new_filepath = self.to_path.join(new_filename.clone());
+
+                    if is_file_exist(&new_filepath) && !self.force_flag {
+                        eprintln!(
+                            "mmv: Not able to replace existing file: {}",
+                            new_filepath.to_str().unwrap()
+                        );
+                        process::exit(42);
+                    }
+
+                    new_filepath_hashmap.insert(filepath.clone(), new_filepath);
+                });
+        }
+
+        new_filepath_hashmap
     }
 }

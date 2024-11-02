@@ -4,8 +4,14 @@ use std::path::{Path, PathBuf};
 use crate::utils::utils::check_folder_existence;
 
 #[derive(Parser, Debug)]
+/// PARSEEER
 struct ArgumentsParse {
+    /// Force flag
+    #[arg(short = 'f', long = "force", default_value_t = false)]
+    force_flag: bool,
+    /// Text for from_template
     from_template: String,
+    /// Text for to_template
     to_template: String,
 }
 
@@ -14,6 +20,7 @@ pub struct Arguments {
     pub from_pattern: String,
     pub to_path: PathBuf,
     pub to_pattern: String,
+    pub force_flag: bool,
 }
 
 impl Arguments {
@@ -48,6 +55,7 @@ impl Arguments {
                 .last()
                 .unwrap()
                 .to_string(),
+            force_flag: parsed_arguments.force_flag,
         }
     }
 }
