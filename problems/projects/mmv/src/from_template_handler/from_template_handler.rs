@@ -92,6 +92,104 @@ impl MatchedFiles {
             }
         }
 
+        matched_files.sort();
+
         (matched_files, matched_files_matchings)
+    }
+}
+
+
+#[cfg(test)]
+mod test_matched_files {
+    use crate::from_template_handler::from_template_handler::MatchedFiles;
+    use std::path::PathBuf;
+
+   #[test]
+   fn test_pattern_without_special_symbols() {
+        let mut directory_path = std::env::current_dir().unwrap();
+        directory_path.push("tests/test_data/unit_tests_folder");
+        let pattern = "simple-pattern.c";
+        let mut target_filepath = directory_path.clone();
+        target_filepath.push(pattern);
+
+        let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
+
+        assert_eq!(matched_files.filepath_vec.len(), 1);
+        assert_eq!(matched_files.filepath_matchings.len(), 0);
+        assert_eq!(matched_files.filepath_vec[0], target_filepath);
+    } 
+
+    #[test]
+    fn test_all_files_pattern() {
+        let mut directory_path = std::env::current_dir().unwrap();
+        directory_path.push("tests/test_data/unit_tests_folder");
+        let pattern = "*";
+        let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
+
+        assert_eq!(matched_files.filepath_vec.len(), 6);
+
+        let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
+        assert_eq!(filenames, vec!["MAKE_YOUR_DREAMS_COME_TRUE_with_rust_ofc.rs", "exist.bin",  "simple-pattern.c",
+            "some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+    }
+
+    #[test]
+    fn test_pattern1() {
+        let mut directory_path = std::env::current_dir().unwrap();
+        directory_path.push("tests/test_data/unit_tests_folder");
+        let pattern = "some_*_filename.*";
+        let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
+
+        assert_eq!(matched_files.filepath_vec.len(), 3);
+
+        let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
+        assert_eq!(filenames, vec!["some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+    }
+
+    #[test]
+    fn test_pattern2() {
+        let mut directory_path = std::env::current_dir().unwrap();
+        directory_path.push("tests/test_data/unit_tests_folder");
+        let pattern = "s*";
+        let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
+
+        assert_eq!(matched_files.filepath_vec.len(), 4);
+
+        let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
+        assert_eq!(filenames, vec!["simple-pattern.c", "some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+    }
+
+    #[test]
+    fn test_pattern_matchings() {
+        let mut directory_path = std::env::current_dir().unwrap();
+        directory_path.push("tests/test_data/unit_tests_folder");
+        let pattern = "some_*_filename.*";
+        let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
+
+        assert_eq!(matched_files.filepath_matchings.len(), 3);
+
+        let mut first_matchings = Vec::new();
+        let mut second_matchings = Vec::new();
+
+        for (_, matchings) in matched_files.filepath_matchings.iter() {
+            first_matchings.push(matchings[0].clone());
+            second_matchings.push(matchings[1].clone());
+        }
+
+        first_matchings.sort();
+        second_matchings.sort();
+
+        assert_eq!(first_matchings, vec!["A", "B", "C"]);
+        assert_eq!(second_matchings, vec!["bin", "cpp", "rs"]);
+    }
+
+    fn get_filenames_from_paths(filepath_vec: &Vec<PathBuf>) -> Vec<&str> {
+        let mut filenames = Vec::new();
+        for filepath in filepath_vec {
+            filenames.push(filepath.to_str().unwrap().split('/').last().unwrap());
+        }
+        
+        filenames.sort();
+        filenames
     }
 }

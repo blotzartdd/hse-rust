@@ -21,7 +21,7 @@ impl FileMover {
         }
     }
 
-    pub fn move_files(self, matched_files: &MatchedFiles) {
+    pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) {
         if !is_folder_exist(&self.to_path) {
             eprintln!(
                 "mmv: Folder '{}' does not exist",
@@ -61,7 +61,7 @@ impl FileMover {
         Ok(())
     }
 
-    fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
+    pub fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
         let mut new_filename = pattern.to_string();
         let mut marker_index = 1;
         let mut marker: String = "#".to_owned();
@@ -114,5 +114,38 @@ impl FileMover {
         }
 
         new_filepath_hashmap
+    }
+}
+
+#[cfg(test)]
+mod test_file_mover_marker_replace {
+    use super::FileMover;
+
+    #[test] 
+    fn test_marker_replace1() {
+        let pattern = "changed_#1_filename.#2";
+        let matchings = vec!["A".to_string(), "cpp".to_string()];
+
+        let replace_result = FileMover::replace_markers_with_matchings(pattern, &matchings);
+        assert_eq!(replace_result, "changed_A_filename.cpp");
+    }
+
+    #[test]
+    fn test_marker_replace2() {
+        let pattern = "#1#2file_with_#3a#4_lot_markers#5.#6";
+        let matchings = vec!["REALLY".to_string(), "_".to_string(), "A".to_string(),
+            "LOT".to_string(), "OF_MARKERS".to_string(), "rs".to_string()];
+
+        let replace_result = FileMover::replace_markers_with_matchings(pattern, &matchings);
+        assert_eq!(replace_result, "REALLY_file_with_AaLOT_lot_markersOF_MARKERS.rs");
+    }
+
+    #[test]
+    fn test_marker_replace3() {
+        let pattern = "#3absolutely#1_useful#2_pattern.jpg";
+        let matchings = vec!["NO".to_string(), "joke".to_string(), "bimbimbambam".to_string()];
+
+        let replace_result = FileMover::replace_markers_with_matchings(pattern, &matchings);
+        assert_eq!(replace_result, "bimbimbambamabsolutelyNO_usefuljoke_pattern.jpg");
     }
 }

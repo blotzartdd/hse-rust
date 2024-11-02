@@ -10,5 +10,5 @@ fn main() {
         &arguments.to_pattern,
         arguments.force_flag,
     );
-    file_mover.move_files(&matched_files);
+    file_mover.move_files_by_pattern(&matched_files);
 }

@@ -9,7 +9,10 @@ pub fn escape_special_regex_characters(pattern: &str) -> String {
         if special_chars.contains(ch) && ch != '*' {
             new_pattern.push('\\');
         }
-        new_pattern.push(ch);
+
+        if ch != '\\' {
+            new_pattern.push(ch);
+        }
     }
 
     new_pattern
@@ -45,7 +48,7 @@ pub fn is_file_exist(filepath: &Path) -> bool {
 
 #[cfg(test)]
 mod test_escape_special_regex_characterss {
-    use crate::utils::utils::escape_special_regex_characters;
+    use super::escape_special_regex_characters;
 
     #[test]
     fn no_special_characters() {
@@ -82,7 +85,7 @@ mod test_escape_special_regex_characterss {
         let test_string = r"[]{}()|^$\?+.";
         assert_eq!(
             escape_special_regex_characters(test_string),
-            "\\[\\]\\{\\}\\(\\)\\|\\^\\$\\\\\\?\\+\\."
+            "\\[\\]\\{\\}\\(\\)\\|\\^\\$\\\\?\\+\\."
         );
     }
 
@@ -90,6 +93,44 @@ mod test_escape_special_regex_characterss {
     fn regular_expression() {
         let test_string = r"2020-03-12T13:34:56\.123Z INFO\[org\.example\.Class\]";
         assert_eq!(escape_special_regex_characters(test_string),
-            "2020-03-12T13:34:56\\\\\\.123Z INFO\\\\\\[org\\\\\\.example\\\\\\.Class\\\\\\]")
+            "2020-03-12T13:34:56\\\\.123Z INFO\\\\[org\\\\.example\\\\.Class\\\\]")
+    }
+}
+
+#[cfg(test)]
+mod test_is_file_exist {
+    use super::is_file_exist;
+
+    #[test]
+    fn test_file_exist() {
+        let mut filepath = std::env::current_dir().unwrap();
+        filepath.push("tests/test_data/unit_tests_folder/exist.bin");
+        assert_eq!(is_file_exist(&filepath), true); 
+    }
+
+    #[test]
+    fn test_file_not_exist() {
+        let mut filepath = std::env::current_dir().unwrap();
+        filepath.push("tests/test_data/unit_tests_folder/not_exist.bin");
+        assert_eq!(is_file_exist(&filepath), false); 
+    }
+}
+
+#[cfg(test)]
+mod test_is_folder_exist {
+    use super::is_folder_exist;
+
+    #[test]
+    fn test_folder_exist() {
+        let mut filepath = std::env::current_dir().unwrap();
+        filepath.push("tests/test_data/unit_tests_folder");
+        assert_eq!(is_folder_exist(&filepath), true); 
+    }
+
+    #[test]
+    fn test_folder_not_exist() {
+        let mut filepath = std::env::current_dir().unwrap();
+        filepath.push("tests/test_data/some_unknown_folder");
+        assert_eq!(is_folder_exist(&filepath), false); 
     }
 }
