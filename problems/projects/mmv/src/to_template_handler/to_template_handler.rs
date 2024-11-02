@@ -61,9 +61,19 @@ impl FileMover {
         marker.push_str(&marker_index.to_string());
 
         while new_filename.find(&marker).is_some() {
+            if marker_index > matchings.len() {
+                eprintln!("mmv: Marker index is greater than * amount");
+                process::exit(42);
+            }
+
             new_filename = new_filename.replace(&marker, &matchings[marker_index - 1]);
             marker_index += 1;
             marker.replace_range(1.., &marker_index.to_string())
+        }
+
+        if marker_index <= matchings.len() {
+                eprintln!("mmv: Marker indexes were not correctly covered by *");
+                process::exit(42);
         }
 
         new_filename

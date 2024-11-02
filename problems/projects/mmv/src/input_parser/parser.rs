@@ -26,11 +26,11 @@ pub struct Arguments {
 impl Arguments {
     pub fn new() -> Arguments {
         let parsed_arguments: ArgumentsParse = ArgumentsParse::parse();
-        let from = Path::new(&parsed_arguments.from_template);
-        let to = Path::new(&parsed_arguments.to_template);
+        let from_template = Path::new(&parsed_arguments.from_template);
+        let to_template = Path::new(&parsed_arguments.to_template);
 
-        let from_template_folder = from.parent();
-        let to_template_folder = to.parent();
+        let from_template_folder = from_template.parent();
+        let to_template_folder = to_template.parent();
 
         if from_template_folder.is_some() && from_template_folder.unwrap().to_str() != Some("") {
             check_folder_existence(from_template_folder.unwrap());
@@ -38,7 +38,7 @@ impl Arguments {
 
         Arguments {
             from_path: from_template_folder.unwrap().into(),
-            from_pattern: from
+            from_pattern: from_template
                 .to_str()
                 .unwrap()
                 .to_string()
@@ -47,7 +47,7 @@ impl Arguments {
                 .unwrap()
                 .to_string(),
             to_path: to_template_folder.unwrap().into(),
-            to_pattern: to
+            to_pattern: to_template
                 .to_str()
                 .unwrap()
                 .to_string()
