@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process;
 
+#[derive(Debug)]
 pub struct MatchedFiles {
     pub filepath_vec: Vec<PathBuf>,
     pub filepath_matchings: HashMap<PathBuf, Vec<String>>,
@@ -28,6 +29,7 @@ impl MatchedFiles {
                 "mmv: Files for pattern '{}' not found",
                 from_path.join(from_pattern).to_str().unwrap()
             );
+            panic!("FILES FOR PATTERN NOT FOUND");
             process::exit(42);
         }
 
@@ -107,7 +109,7 @@ mod test_matched_files {
    #[test]
    fn test_pattern_without_special_symbols() {
         let mut directory_path = std::env::current_dir().unwrap();
-        directory_path.push("tests/test_data/unit_tests_folder");
+        directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "simple-pattern.c";
         let mut target_filepath = directory_path.clone();
         target_filepath.push(pattern);
@@ -122,7 +124,7 @@ mod test_matched_files {
     #[test]
     fn test_all_files_pattern() {
         let mut directory_path = std::env::current_dir().unwrap();
-        directory_path.push("tests/test_data/unit_tests_folder");
+        directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "*";
         let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
 
@@ -136,7 +138,7 @@ mod test_matched_files {
     #[test]
     fn test_pattern1() {
         let mut directory_path = std::env::current_dir().unwrap();
-        directory_path.push("tests/test_data/unit_tests_folder");
+        directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "some_*_filename.*";
         let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
 
@@ -149,7 +151,7 @@ mod test_matched_files {
     #[test]
     fn test_pattern2() {
         let mut directory_path = std::env::current_dir().unwrap();
-        directory_path.push("tests/test_data/unit_tests_folder");
+        directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "s*";
         let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
 
@@ -162,7 +164,7 @@ mod test_matched_files {
     #[test]
     fn test_pattern_matchings() {
         let mut directory_path = std::env::current_dir().unwrap();
-        directory_path.push("tests/test_data/unit_tests_folder");
+        directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "some_*_filename.*";
         let matched_files = MatchedFiles::new(&directory_path.to_path_buf(), pattern);
 

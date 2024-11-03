@@ -104,14 +104,14 @@ mod test_is_file_exist {
     #[test]
     fn test_file_exist() {
         let mut filepath = std::env::current_dir().unwrap();
-        filepath.push("tests/test_data/unit_tests_folder/exist.bin");
+        filepath.push("tests/test_data/unit_tests_data/exist.bin");
         assert_eq!(is_file_exist(&filepath), true); 
     }
 
     #[test]
     fn test_file_not_exist() {
         let mut filepath = std::env::current_dir().unwrap();
-        filepath.push("tests/test_data/unit_tests_folder/not_exist.bin");
+        filepath.push("tests/test_data/unit_tests_data/not_exist.bin");
         assert_eq!(is_file_exist(&filepath), false); 
     }
 }
@@ -123,7 +123,7 @@ mod test_is_folder_exist {
     #[test]
     fn test_folder_exist() {
         let mut filepath = std::env::current_dir().unwrap();
-        filepath.push("tests/test_data/unit_tests_folder");
+        filepath.push("tests/test_data/unit_tests_data");
         assert_eq!(is_folder_exist(&filepath), true); 
     }
 

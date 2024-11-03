@@ -27,6 +27,7 @@ impl FileMover {
                 "mmv: Folder '{}' does not exist",
                 self.to_path.to_str().unwrap()
             );
+            panic!("TO FOLDER NOT EXIST");
             process::exit(42);
         }
 
@@ -92,25 +93,25 @@ impl FileMover {
         filepath_matchings: &HashMap<PathBuf, Vec<String>>,
     ) -> HashMap<PathBuf, PathBuf> {
         let mut new_filepath_hashmap = HashMap::new();
+
         for filepath in filepath_vec.iter() {
-            filepath_matchings
-                .get(filepath)
-                .into_iter()
-                .for_each(|matching_vec| {
-                    let new_filename =
-                        Self::replace_markers_with_matchings(&self.to_pattern, matching_vec);
-                    let new_filepath = self.to_path.join(new_filename.clone());
+            let mut new_filename = self.to_pattern.clone();
+            if let Some(matching_vec) = filepath_matchings.get(filepath) {
+                new_filename = Self::replace_markers_with_matchings(&self.to_pattern, matching_vec);
+            }
 
-                    if is_file_exist(&new_filepath) && !self.force_flag {
-                        eprintln!(
-                            "mmv: Not able to replace existing file: {}",
-                            new_filepath.to_str().unwrap()
-                        );
-                        process::exit(42);
-                    }
+            let new_filepath = self.to_path.join(new_filename);
 
-                    new_filepath_hashmap.insert(filepath.clone(), new_filepath);
-                });
+            if is_file_exist(&new_filepath) && !self.force_flag {
+                eprintln!(
+                    "mmv: Not able to replace existing file: {}",
+                    new_filepath.to_str().unwrap()
+                );
+                panic!("FORCE FLAG");
+                process::exit(42);
+            }
+
+            new_filepath_hashmap.insert(filepath.clone(), new_filepath);
         }
 
         new_filepath_hashmap

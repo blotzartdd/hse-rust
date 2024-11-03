@@ -16,6 +16,7 @@ struct ArgumentsParse {
     to_template: String,
 }
 
+#[derive(Debug)]
 pub struct Arguments {
     pub from_path: PathBuf,
     pub from_pattern: String,
@@ -39,6 +40,7 @@ impl Arguments {
                     "mmv: Folder '{}' does not exist",
                     from_template_folder.unwrap().to_str().unwrap()
                 );
+                panic!("FROM FOLDER NOT EXIST");
                 process::exit(42);
             }
         }
