@@ -19,7 +19,7 @@ impl MatchedFiles {
     ///
     /// # Examples
     ///
-    /// 
+    ///
     /// // path/to/test_folder -> [test_filename1.rs, test_filename2.cpp]
     /// use from_template_handler::MatchedFiles;
     /// use std::path::{Path, PathBuf};
@@ -35,7 +35,7 @@ impl MatchedFiles {
     ///     (PathBuf::from("path/to/test_folder/test_filename1.rs"), vec!["test", "1", "rs"]),
     ///     (PathBuf::from("path/to/test_filder/test_filename2.cpp"), vec!["test", "2", "cpp"])
     ///     ]));
-    /// 
+    ///
     pub fn new(from_path: &PathBuf, from_pattern: &str) -> MatchedFiles {
         let pattern = Self::make_correct_pattern(from_pattern);
         let regex_pattern = Regex::new(&pattern).unwrap();

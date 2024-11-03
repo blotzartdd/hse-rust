@@ -23,7 +23,7 @@ impl FileMover {
     ///
     /// # Examples
     ///
-    /// 
+    ///
     /// use from_template_handler::FileMover;
     /// use std::path::PathBuf;
     ///
@@ -32,7 +32,7 @@ impl FileMover {
     /// let force_flag = false;
     ///
     /// let file_mover = FileMover::new(to_path, to_pattern, force_flag);
-    /// 
+    ///
     pub fn new(to_path: &PathBuf, to_pattern: &str, force_flag: bool) -> FileMover {
         FileMover {
             to_path: to_path.clone(),
@@ -45,7 +45,7 @@ impl FileMover {
     ///
     /// # Examples
     ///
-    /// 
+    ///
     /// // Folders before move
     /// // path/to -> [test_filename1.rs, test_filename2.cpp]
     /// // path2/to -> []
@@ -67,7 +67,7 @@ impl FileMover {
     /// // Folders after move
     /// // path/to -> []
     /// // path2/to -> [changed_test_filename1.rs, changed_test_filename2.cpp]
-    /// 
+    ///
     pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) {
         if !is_folder_exist(&self.to_path) {
             eprintln!(
@@ -112,7 +112,7 @@ impl FileMover {
     ///
     /// # Examples
     ///
-    /// 
+    ///
     /// use to_template_handler::replace_markers_with_matchings;
     ///
     /// let pattern = "pattern_#1_example.#2";
@@ -120,9 +120,9 @@ impl FileMover {
     ///
     /// let result = replace_markers_with_matchings(pattern, matchings);
     /// assert_eq!(result, "pattern_pattern_example.rs");
-    /// 
     ///
-    /// 
+    ///
+    ///
     /// use to_template_handler::replace_markers_with_matchings;
     ///
     /// let pattern = "pattern_#2_example.#1";
@@ -130,7 +130,7 @@ impl FileMover {
     ///
     /// let result = replace_markers_with_matchings(pattern, matchings);
     /// assert_eq!(result, "pattern_rs_example.pattern");
-    /// 
+    ///
     pub fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
         let mut new_filename = pattern.to_string();
         let mut marker_index = 1;

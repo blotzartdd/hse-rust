@@ -5,14 +5,14 @@ use std::process;
 ///
 /// # Examples
 ///
-/// 
+///
 /// utils::escape_special_regular_expression_characters;
 ///
 /// let regular_expression = "$print^pretty+string";
 /// let result = escape_special_regular_expression_characters(regular_expression);
 ///
 /// assert_eq!(result, "\\$print\\^pretty\\+string");
-/// 
+///
 pub fn escape_special_regular_expression_characters(pattern: &str) -> String {
     let special_chars = r"[]{}()|^$\?+.";
 
@@ -34,7 +34,7 @@ pub fn escape_special_regular_expression_characters(pattern: &str) -> String {
 ///
 /// # Examples
 ///
-/// 
+///
 /// use ::utils::is_folder_exist;
 /// use std::path::Path;
 ///
@@ -42,9 +42,9 @@ pub fn escape_special_regular_expression_characters(pattern: &str) -> String {
 /// let result = is_folder_exist(folder_path);
 ///
 /// assert_eq!(result, true);
-/// 
 ///
-/// 
+///
+///
 /// use utils::is_folder_exist;
 /// use std::path::Path;
 ///
@@ -52,15 +52,15 @@ pub fn escape_special_regular_expression_characters(pattern: &str) -> String {
 /// let result = is_folder_exist(folder_path);
 ///
 /// assert_eq!(result, false);
-/// 
 ///
-/// 
+///
+///
 /// use utils::is_folder_exist;
 ///
 /// let folder_path = Path::new("path/to/system_folder");
 /// let result = is_folder_exist(folder_path); // -> Print error message and exit with non-zero
 /// exit code
-/// 
+///
 pub fn is_folder_exist(folder_path: &Path) -> bool {
     let folder_exist_result = folder_path.try_exists();
     match folder_exist_result {
@@ -79,30 +79,30 @@ pub fn is_folder_exist(folder_path: &Path) -> bool {
 ///
 /// # Examples
 ///
-/// 
+///
 /// use utils::is_file_exist;
 ///
 /// let file_path = Path::new("path/to/existing_file");
 /// let result = is_folder_exist(folder_path);
 ///
 /// assert_eq!(result, true);
-/// 
 ///
-/// 
+///
+///
 /// use utils::is_file_exist;
 ///
 /// let file_path = Path::new("path/to/not_existing_file");
 /// let result = is_folder_exist(folder_path);
 ///
 /// assert_eq!(result, false);
-/// 
 ///
-/// 
+///
+///
 /// use utils::is_file_exist;
 ///
 /// let file_path = Path::new("path/to/system_file");
 /// let result = is_folder_exist(folder_path); // -> Print error message and exit with non-zero exit code
-/// 
+///
 pub fn is_file_exist(filepath: &Path) -> bool {
     let file_exist_result = filepath.try_exists();
     match file_exist_result {
