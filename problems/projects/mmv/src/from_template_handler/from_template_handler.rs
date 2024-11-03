@@ -79,7 +79,13 @@ impl MatchedFiles {
         let mut matched_files: Vec<PathBuf> = Vec::new();
         let mut matched_files_matchings: HashMap<PathBuf, Vec<String>> = HashMap::new();
 
-        let files = std::fs::read_dir(from_path).unwrap();
+        let files_res = std::fs::read_dir(from_path);
+        if files_res.is_err() {
+            eprintln!("mmv: No files in directory {}", from_path.to_str().unwrap());
+            process::exit(42);
+        }
+
+        let files = files_res.unwrap();
         for file in files {
             match file {
                 Ok(file) => {
