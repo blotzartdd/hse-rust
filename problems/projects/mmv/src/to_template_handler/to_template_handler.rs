@@ -68,7 +68,7 @@ impl FileMover {
     /// // path/to -> []
     /// // path2/to -> [changed_test_filename1.rs, changed_test_filename2.cpp]
     ///
-    pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) {
+    pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) -> HashMap<PathBuf, PathBuf> {
         if !is_folder_exist(&self.to_path) {
             eprintln!(
                 "mmv: Folder '{}' does not exist",
@@ -82,7 +82,7 @@ impl FileMover {
             &matched_files.filepath_matchings,
         );
 
-        for (filepath, new_filepath) in new_filepath_hashmap.into_iter() {
+        for (filepath, new_filepath) in new_filepath_hashmap.clone().into_iter() {
             match Self::move_file(filepath.to_str().unwrap(), new_filepath.to_str().unwrap()) {
                 Ok(_) => (),
                 Err(err) => {
@@ -94,13 +94,9 @@ impl FileMover {
                     process::exit(42);
                 }
             }
-
-            println!(
-                "{} -> {}",
-                filepath.to_str().unwrap(),
-                new_filepath.to_str().unwrap()
-            );
         }
+
+        new_filepath_hashmap
     }
 
     fn move_file(source: &str, destination: &str) -> Result<(), io::Error> {

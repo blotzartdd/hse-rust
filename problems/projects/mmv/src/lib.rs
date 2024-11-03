@@ -18,7 +18,15 @@ pub fn run_mmv() {
         &arguments.to_pattern,
         arguments.force_flag,
     );
-    file_mover.move_files_by_pattern(&matched_files);
+    let new_filepath_hashmap = file_mover.move_files_by_pattern(&matched_files);
+    for (filepath, new_filepath) in new_filepath_hashmap.into_iter() {
+            println!(
+                "{} -> {}",
+                filepath.to_str().unwrap(),
+                new_filepath.to_str().unwrap()
+            );
+    }
+
 }
 
 /// Function for tests to run mmv with args
