@@ -43,8 +43,8 @@ impl Arguments {
     ///
     /// # Examples
     ///
+    ///
     /// 
-    /// ```
     /// // Console input: 'path/to/some_*_filename.*' 'path2/to/changed_#1_filename.#2'
     /// use doc::Arguments;
     /// let arguments = Arguments::new();
@@ -56,9 +56,9 @@ impl Arguments {
     ///     force_flag: false,
     /// })
     ///
-    /// ```
+    /// 
     ///
-    /// ```
+    ///
     /// // Console input: -f 'path/to/simple_pattern.rs' 'path2/to/not_simple_pattern.rs'
     /// use doc::Arguments;
     /// let arguments = Arguments::new();
@@ -70,7 +70,7 @@ impl Arguments {
     ///     force_flag: true,
     /// })
     ///
-    /// ```
+    ///
     pub fn new() -> Arguments {
         let parsed_arguments: ArgumentsParse = ArgumentsParse::parse();
         let from_template = Path::new(&parsed_arguments.from_template);

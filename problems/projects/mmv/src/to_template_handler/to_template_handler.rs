@@ -23,7 +23,7 @@ impl FileMover {
     ///
     /// # Examples
     ///
-    /// ```
+    /// 
     /// use from_template_handler::FileMover;
     /// use std::path::PathBuf;
     ///
@@ -32,7 +32,7 @@ impl FileMover {
     /// let force_flag = false;
     ///
     /// let file_mover = FileMover::new(to_path, to_pattern, force_flag);
-    /// ```
+    /// 
     pub fn new(to_path: &PathBuf, to_pattern: &str, force_flag: bool) -> FileMover {
         FileMover {
             to_path: to_path.clone(),
@@ -41,11 +41,11 @@ impl FileMover {
         }
     }
 
-    /// Move matched files according to to_pattern to to_path directory 
+    /// Move matched files according to to_pattern to to_path directory
     ///
     /// # Examples
     ///
-    /// ```
+    /// 
     /// // Folders before move
     /// // path/to -> [test_filename1.rs, test_filename2.cpp]
     /// // path2/to -> []
@@ -67,7 +67,7 @@ impl FileMover {
     /// // Folders after move
     /// // path/to -> []
     /// // path2/to -> [changed_test_filename1.rs, changed_test_filename2.cpp]
-    /// ```
+    /// 
     pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) {
         if !is_folder_exist(&self.to_path) {
             eprintln!(
@@ -108,11 +108,11 @@ impl FileMover {
         Ok(())
     }
 
-    /// Replace markers in pattern with matchings by indexes 
+    /// Replace markers in pattern with matchings by indexes
     ///
     /// # Examples
     ///
-    /// ```
+    /// 
     /// use to_template_handler::replace_markers_with_matchings;
     ///
     /// let pattern = "pattern_#1_example.#2";
@@ -120,9 +120,9 @@ impl FileMover {
     ///
     /// let result = replace_markers_with_matchings(pattern, matchings);
     /// assert_eq!(result, "pattern_pattern_example.rs");
-    /// ```
+    /// 
     ///
-    /// ```
+    /// 
     /// use to_template_handler::replace_markers_with_matchings;
     ///
     /// let pattern = "pattern_#2_example.#1";
@@ -130,7 +130,7 @@ impl FileMover {
     ///
     /// let result = replace_markers_with_matchings(pattern, matchings);
     /// assert_eq!(result, "pattern_rs_example.pattern");
-    /// ```
+    /// 
     pub fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
         let mut new_filename = pattern.to_string();
         let mut marker_index = 1;
@@ -190,7 +190,7 @@ impl FileMover {
 mod test_file_mover_marker_replace {
     use super::FileMover;
 
-    #[test] 
+    #[test]
     fn test_marker_replace1() {
         let pattern = "changed_#1_filename.#2";
         let matchings = vec!["A".to_string(), "cpp".to_string()];
@@ -202,19 +202,35 @@ mod test_file_mover_marker_replace {
     #[test]
     fn test_marker_replace2() {
         let pattern = "#1#2file_with_#3a#4_lot_markers#5.#6";
-        let matchings = vec!["REALLY".to_string(), "_".to_string(), "A".to_string(),
-            "LOT".to_string(), "OF_MARKERS".to_string(), "rs".to_string()];
+        let matchings = vec![
+            "REALLY".to_string(),
+            "_".to_string(),
+            "A".to_string(),
+            "LOT".to_string(),
+            "OF_MARKERS".to_string(),
+            "rs".to_string(),
+        ];
 
         let replace_result = FileMover::replace_markers_with_matchings(pattern, &matchings);
-        assert_eq!(replace_result, "REALLY_file_with_AaLOT_lot_markersOF_MARKERS.rs");
+        assert_eq!(
+            replace_result,
+            "REALLY_file_with_AaLOT_lot_markersOF_MARKERS.rs"
+        );
     }
 
     #[test]
     fn test_marker_replace3() {
         let pattern = "#3absolutely#1_useful#2_pattern.jpg";
-        let matchings = vec!["NO".to_string(), "joke".to_string(), "bimbimbambam".to_string()];
+        let matchings = vec![
+            "NO".to_string(),
+            "joke".to_string(),
+            "bimbimbambam".to_string(),
+        ];
 
         let replace_result = FileMover::replace_markers_with_matchings(pattern, &matchings);
-        assert_eq!(replace_result, "bimbimbambamabsolutelyNO_usefuljoke_pattern.jpg");
+        assert_eq!(
+            replace_result,
+            "bimbimbambamabsolutelyNO_usefuljoke_pattern.jpg"
+        );
     }
 }

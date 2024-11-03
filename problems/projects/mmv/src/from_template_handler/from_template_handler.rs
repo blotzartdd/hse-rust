@@ -19,23 +19,23 @@ impl MatchedFiles {
     ///
     /// # Examples
     ///
-    /// ```
+    /// 
     /// // path/to/test_folder -> [test_filename1.rs, test_filename2.cpp]
     /// use from_template_handler::MatchedFiles;
-    /// use std::path::PathBuf;
+    /// use std::path::{Path, PathBuf};
     /// use std::collections::HashMap;
-    /// 
+    ///
     /// let from_path = Path::new("path/to/test_folder");
     /// let from_pattern = "*_filename*.*";
     ///
     /// let matched_files = MatchedFiles::new(&from_path.into(), from_pattern);
-    /// assert_eq(matched_files.filepath_vec, vec![PathBuf::from("path/to/test_folder/test_filename1.rs"),
+    /// assert_eq!(matched_files.filepath_vec, vec![PathBuf::from("path/to/test_folder/test_filename1.rs"),
     ///                                            PathBuf::from("path/to/test_folder/test_filename2.cpp")]);
-    /// assert_eq(matched_files.filepath_matchings, HashMap::from([
+    /// assert_eq!(matched_files.filepath_matchings, HashMap::from([
     ///     (PathBuf::from("path/to/test_folder/test_filename1.rs"), vec!["test", "1", "rs"]),
     ///     (PathBuf::from("path/to/test_filder/test_filename2.cpp"), vec!["test", "2", "cpp"])
     ///     ]));
-    /// ```
+    /// 
     pub fn new(from_path: &PathBuf, from_pattern: &str) -> MatchedFiles {
         let pattern = Self::make_correct_pattern(from_pattern);
         let regex_pattern = Regex::new(&pattern).unwrap();
@@ -124,14 +124,13 @@ impl MatchedFiles {
     }
 }
 
-
 #[cfg(test)]
 mod test_matched_files {
     use crate::from_template_handler::from_template_handler::MatchedFiles;
     use std::path::PathBuf;
 
-   #[test]
-   fn test_pattern_without_special_symbols() {
+    #[test]
+    fn test_pattern_without_special_symbols() {
         let mut directory_path = std::env::current_dir().unwrap();
         directory_path.push("tests/test_data/unit_tests_data");
         let pattern = "simple-pattern.c";
@@ -143,7 +142,7 @@ mod test_matched_files {
         assert_eq!(matched_files.filepath_vec.len(), 1);
         assert_eq!(matched_files.filepath_matchings.len(), 0);
         assert_eq!(matched_files.filepath_vec[0], target_filepath);
-    } 
+    }
 
     #[test]
     fn test_all_files_pattern() {
@@ -155,8 +154,17 @@ mod test_matched_files {
         assert_eq!(matched_files.filepath_vec.len(), 6);
 
         let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
-        assert_eq!(filenames, vec!["MAKE_YOUR_DREAMS_COME_TRUE_with_rust_ofc.rs", "exist.bin",  "simple-pattern.c",
-            "some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+        assert_eq!(
+            filenames,
+            vec![
+                "MAKE_YOUR_DREAMS_COME_TRUE_with_rust_ofc.rs",
+                "exist.bin",
+                "simple-pattern.c",
+                "some_A_filename.cpp",
+                "some_B_filename.rs",
+                "some_C_filename.bin"
+            ]
+        );
     }
 
     #[test]
@@ -169,7 +177,14 @@ mod test_matched_files {
         assert_eq!(matched_files.filepath_vec.len(), 3);
 
         let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
-        assert_eq!(filenames, vec!["some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+        assert_eq!(
+            filenames,
+            vec![
+                "some_A_filename.cpp",
+                "some_B_filename.rs",
+                "some_C_filename.bin"
+            ]
+        );
     }
 
     #[test]
@@ -182,7 +197,15 @@ mod test_matched_files {
         assert_eq!(matched_files.filepath_vec.len(), 4);
 
         let filenames = get_filenames_from_paths(&matched_files.filepath_vec);
-        assert_eq!(filenames, vec!["simple-pattern.c", "some_A_filename.cpp", "some_B_filename.rs", "some_C_filename.bin"]);
+        assert_eq!(
+            filenames,
+            vec![
+                "simple-pattern.c",
+                "some_A_filename.cpp",
+                "some_B_filename.rs",
+                "some_C_filename.bin"
+            ]
+        );
     }
 
     #[test]
@@ -214,7 +237,7 @@ mod test_matched_files {
         for filepath in filepath_vec {
             filenames.push(filepath.to_str().unwrap().split('/').last().unwrap());
         }
-        
+
         filenames.sort();
         filenames
     }
