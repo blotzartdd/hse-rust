@@ -91,7 +91,6 @@ impl FileMover {
                         err,
                         filepath.to_str().unwrap()
                     );
-                    process::exit(42);
                 }
             }
         }
