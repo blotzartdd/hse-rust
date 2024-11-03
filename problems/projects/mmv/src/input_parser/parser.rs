@@ -16,16 +16,54 @@ struct ArgumentsParse {
     to_template: String,
 }
 
+/// Struct with all parsed arguments that are need for mmv work
 #[derive(Debug)]
 pub struct Arguments {
+    /// Path to the directory from which files to move are taken
     pub from_path: PathBuf,
+    /// Pattern by which files are selected in from_path
     pub from_pattern: String,
+    /// Path to the directory where mmv will move the files
     pub to_path: PathBuf,
+    /// Pattern by which files change their names in the to_path folder
     pub to_pattern: String,
+    /// Set force flag
     pub force_flag: bool,
 }
 
 impl Arguments {
+    /// Creates Arguments struct from console input
+    ///
+    /// # Examples
+    ///
+    /// 
+    /// ```
+    /// // Console input: 'path/to/some_*_filename.*' 'path2/to/changed_#1_filename.#2'
+    /// use doc::Arguments;
+    /// let arguments = Arguments::new();
+    /// assert_eq!(arguments, Arguments {
+    ///     from_path: PathBuf("path/to"),
+    ///     from_pattern: "some_*_filename.*",
+    ///     to_path: PathBuf("path2/to"),
+    ///     to_pattern: "changed_#1_filename.#2",
+    ///     force_flag: false,
+    /// })
+    ///
+    /// ```
+    ///
+    /// ```
+    /// // Console input: -f 'path/to/simple_pattern.rs' 'path2/to/not_simple_pattern.rs'
+    /// use doc::Arguments;
+    /// let arguments = Arguments::new();
+    /// assert_eq!(arguments, Arguments {
+    ///     from_path: PathBuf("path/to"),
+    ///     from_pattern: "simple_pattern.rs",
+    ///     to_path: PathBuf("path2/to"),
+    ///     to_pattern: "not_simple_pattern.rs",
+    ///     force_flag: true,
+    /// })
+    ///
+    /// ```
     pub fn new() -> Arguments {
         let parsed_arguments: ArgumentsParse = ArgumentsParse::parse();
         let from_template = Path::new(&parsed_arguments.from_template);
@@ -40,7 +78,6 @@ impl Arguments {
                     "mmv: Folder '{}' does not exist",
                     from_template_folder.unwrap().to_str().unwrap()
                 );
-                panic!("FROM FOLDER NOT EXIST");
                 process::exit(42);
             }
         }

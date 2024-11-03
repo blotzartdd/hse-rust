@@ -6,13 +6,33 @@ use std::io;
 use std::path::PathBuf;
 use std::process;
 
+/// Struct that move files from MatchedFiles to to_path directory by to_pattern and forcefully
+/// replace if force_flag is true
 pub struct FileMover {
+    /// Path to the directory where FileMover will move the files
     pub to_path: PathBuf,
+    /// Pattern by which files change their names in the to_path folder
     pub to_pattern: String,
+    /// If that flag is set FileMover will forcefully replace all files that exist in to_path
+    /// directory and match the pattern
     pub force_flag: bool,
 }
 
 impl FileMover {
+    /// Creates FileMover with given path, pattern and force_flag
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use from_template_handler::FileMover;
+    /// use std::path::PathBuf;
+    ///
+    /// let to_path = PathBuf::from("path/to");
+    /// let to_pattern = "some_pattern";
+    /// let force_flag = false;
+    ///
+    /// let file_mover = FileMover::new(to_path, to_pattern, force_flag);
+    /// ```
     pub fn new(to_path: &PathBuf, to_pattern: &str, force_flag: bool) -> FileMover {
         FileMover {
             to_path: to_path.clone(),
@@ -21,13 +41,39 @@ impl FileMover {
         }
     }
 
+    /// Move matched files according to to_pattern to to_path directory 
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Folders before move
+    /// // path/to -> [test_filename1.rs, test_filename2.cpp]
+    /// // path2/to -> []
+    /// use from_template_handler::FileMover;
+    /// use to_template_handler::MatchedFiles;
+    ///
+    /// let from_path = Path::new("path/to");
+    /// let from_pattern = "*_filename*.*";
+    ///
+    /// let matched_files = MatchedFiles::new(&from_path.into(), from_pattern);
+    ///
+    /// let to_path = Path::new("path2/to");
+    /// let to_pattern = "changed_#1_filename#2.#3";
+    ///
+    /// let file_mover = FileMover::new(&to_path.into(), to_pattern, false);
+    ///
+    /// file_mover.move_files_by_pattern(&matched_files);
+    ///
+    /// // Folders after move
+    /// // path/to -> []
+    /// // path2/to -> [changed_test_filename1.rs, changed_test_filename2.cpp]
+    /// ```
     pub fn move_files_by_pattern(self, matched_files: &MatchedFiles) {
         if !is_folder_exist(&self.to_path) {
             eprintln!(
                 "mmv: Folder '{}' does not exist",
                 self.to_path.to_str().unwrap()
             );
-            panic!("TO FOLDER NOT EXIST");
             process::exit(42);
         }
 
@@ -62,6 +108,29 @@ impl FileMover {
         Ok(())
     }
 
+    /// Replace markers in pattern with matchings by indexes 
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use to_template_handler::replace_markers_with_matchings;
+    ///
+    /// let pattern = "pattern_#1_example.#2";
+    /// let matchings = vec!["pattern", "rs"];
+    ///
+    /// let result = replace_markers_with_matchings(pattern, matchings);
+    /// assert_eq!(result, "pattern_pattern_example.rs");
+    /// ```
+    ///
+    /// ```
+    /// use to_template_handler::replace_markers_with_matchings;
+    ///
+    /// let pattern = "pattern_#2_example.#1";
+    /// let matchings = vec!["pattern", "rs"];
+    ///
+    /// let result = replace_markers_with_matchings(pattern, matchings);
+    /// assert_eq!(result, "pattern_rs_example.pattern");
+    /// ```
     pub fn replace_markers_with_matchings(pattern: &str, matchings: &Vec<String>) -> String {
         let mut new_filename = pattern.to_string();
         let mut marker_index = 1;
@@ -107,7 +176,6 @@ impl FileMover {
                     "mmv: Not able to replace existing file: {}",
                     new_filepath.to_str().unwrap()
                 );
-                panic!("FORCE FLAG");
                 process::exit(42);
             }
 

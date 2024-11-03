@@ -1,16 +1,41 @@
-use crate::utils::utils::escape_special_regex_characters;
+use crate::utils::utils::escape_special_regular_expression_characters;
 use regex::Regex;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process;
 
+/// Struct of file paths that were matched with from_pattern and their matchings info
 #[derive(Debug)]
 pub struct MatchedFiles {
+    /// Vector of matched filepaths
     pub filepath_vec: Vec<PathBuf>,
+    /// Hashmap with matching info by filepath to replace with markers in to_pattern
     pub filepath_matchings: HashMap<PathBuf, Vec<String>>,
 }
 
 impl MatchedFiles {
+    /// Creates MatchedFiles struct by looking into from_path folder and comparing filenames with
+    /// from_pattern
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // path/to/test_folder -> [test_filename1.rs, test_filename2.cpp]
+    /// use from_template_handler::MatchedFiles;
+    /// use std::path::PathBuf;
+    /// use std::collections::HashMap;
+    /// 
+    /// let from_path = Path::new("path/to/test_folder");
+    /// let from_pattern = "*_filename*.*";
+    ///
+    /// let matched_files = MatchedFiles::new(&from_path.into(), from_pattern);
+    /// assert_eq(matched_files.filepath_vec, vec![PathBuf::from("path/to/test_folder/test_filename1.rs"),
+    ///                                            PathBuf::from("path/to/test_folder/test_filename2.cpp")]);
+    /// assert_eq(matched_files.filepath_matchings, HashMap::from([
+    ///     (PathBuf::from("path/to/test_folder/test_filename1.rs"), vec!["test", "1", "rs"]),
+    ///     (PathBuf::from("path/to/test_filder/test_filename2.cpp"), vec!["test", "2", "cpp"])
+    ///     ]));
+    /// ```
     pub fn new(from_path: &PathBuf, from_pattern: &str) -> MatchedFiles {
         let pattern = Self::make_correct_pattern(from_pattern);
         let regex_pattern = Regex::new(&pattern).unwrap();
@@ -29,7 +54,6 @@ impl MatchedFiles {
                 "mmv: Files for pattern '{}' not found",
                 from_path.join(from_pattern).to_str().unwrap()
             );
-            panic!("FILES FOR PATTERN NOT FOUND");
             process::exit(42);
         }
 
@@ -41,7 +65,7 @@ impl MatchedFiles {
 
     fn make_correct_pattern(pattern: &str) -> String {
         let mut pattern = (*pattern).to_string();
-        pattern = escape_special_regex_characters(&pattern);
+        pattern = escape_special_regular_expression_characters(&pattern);
         pattern = pattern.replace("*", "(.*)");
 
         pattern
