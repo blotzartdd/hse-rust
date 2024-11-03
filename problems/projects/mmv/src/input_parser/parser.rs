@@ -5,14 +5,21 @@ use std::process;
 use crate::utils::utils::is_folder_exist;
 
 #[derive(Parser, Debug)]
-/// PARSEEER
+/// Description: mmv moves all files that match the from pattern to the target place that match the to pattern
+/// File moves performed without any unexpected delitions because, before doing anything, mmv try
+/// to detect any collisions and will throw error if find anything.
+/// You can use flags -f (--force), -h (--help) to change program behaivour
 struct ArgumentsParse {
-    /// Force flag
+    /// Set this flag if you want to replace files if they already exist
     #[arg(short = 'f', long = "force", default_value_t = false)]
     force_flag: bool,
-    /// Text for from_template
+    /// The from template for selecting files consists of a path, a name and the symbol * inside the name, denoting
+    /// a substring of any length (including empty).
     from_template: String,
-    /// Text for to_template
+    /// The template for the final path is formed from ordinary characters,
+    /// and also uses special markers like #1, #2, and so on.
+    /// These markers indicate which portions, indicated by asterisks in the original template,
+    /// should be inserted into the new file name.
     to_template: String,
 }
 
@@ -27,7 +34,7 @@ pub struct Arguments {
     pub to_path: PathBuf,
     /// Pattern by which files change their names in the to_path folder
     pub to_pattern: String,
-    /// Set force flag
+    /// Set this flag if you want to replace files if they already exist
     pub force_flag: bool,
 }
 
