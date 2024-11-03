@@ -9,6 +9,7 @@ use crate::to_template_handler::to_template_handler::FileMover;
 
 use std::path::PathBuf;
 
+/// Function that runs mmv
 pub fn run_mmv() {
     let arguments = Arguments::new();
     let matched_files = MatchedFiles::new(&arguments.from_path, &arguments.from_pattern);
@@ -20,6 +21,7 @@ pub fn run_mmv() {
     file_mover.move_files_by_pattern(&matched_files);
 }
 
+/// Function for tests to run mmv with args
 pub fn run_mmv_with_arguments(
     from_path: &PathBuf,
     from_pattern: &str,
