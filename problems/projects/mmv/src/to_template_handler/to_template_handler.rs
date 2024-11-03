@@ -83,7 +83,7 @@ impl FileMover {
         );
 
         for (filepath, new_filepath) in new_filepath_hashmap.clone().into_iter() {
-            match Self::move_file(filepath.to_str().unwrap(), new_filepath.to_str().unwrap()) {
+            match fs::rename(filepath.to_str().unwrap(), new_filepath.to_str().unwrap()) {
                 Ok(_) => (),
                 Err(err) => {
                     eprintln!(
@@ -97,11 +97,6 @@ impl FileMover {
         }
 
         new_filepath_hashmap
-    }
-
-    fn move_file(source: &str, destination: &str) -> Result<(), io::Error> {
-        fs::rename(source, destination)?;
-        Ok(())
     }
 
     /// Replace markers in pattern with matchings by indexes
