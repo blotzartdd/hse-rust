@@ -18,6 +18,8 @@ members = [
     "problems/iterators/shrek",
     "problems/iterators/flatten2",
     "problems/iterators/split",
+    "problems/threads/threadpool",
+    "problems/threads/sequential",
 
     # Tools
     "tools/rover",
