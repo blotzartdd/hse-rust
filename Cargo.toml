@@ -20,6 +20,8 @@ members = [
     "problems/iterators/split",
     "problems/threads/threadpool",
     "problems/threads/sequential",
+    "problems/net/roshambo",
+    "problems/net/chat",
 
     # Tools
     "tools/task_solver_client",

@@ -1,0 +1,11 @@
+[package]
+name = "chat"
+version = "0.1.0"
+authors = ["Dmitrii Zakharov <dimaz1301@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.4.8", features = ["derive"] }
+log = "0.4.20"
+rand = "0.8.5"
+simplelog = "0.12.1"
