@@ -1,13 +1,20 @@
-use tokio::task::JoinHandle;
 use crate::server::models::requests::CreateTaskRequest;
+use crate::server::server_structures::TaskStatus;
+use chrono::prelude::*;
 
-use tokio::sync::mpsc;
+use std::sync::Arc;
+
+use tokio::task::JoinHandle;
+use tokio::sync::mpsc::{self, Receiver};
+use tokio::sync::Mutex;
+use tokio::task;
 
 pub struct WorkerPool {
-    workers: Vec<Worker>,
-    workers_count: usize,
-    currently_working_count: usize,
-    receiver: mpsc::Receiver<CreateTaskRequest>
+    pub workers: Vec<Worker>,
+    pub workers_count: usize,
+    pub currently_working_count: usize,
+    pub sender: mpsc::Sender<CreateTaskRequest>,
+    pub receiver: Arc<Mutex<mpsc::Receiver<CreateTaskRequest>>>,
 }
 
 pub struct Worker {
@@ -15,10 +22,14 @@ pub struct Worker {
 }
 
 impl WorkerPool {
-    pub fn new(workers_count: usize, receiver: mpsc::Receiver<CreateTaskRequest>) -> WorkerPool {
+    pub fn new(
+        workers_count: usize,
+        sender: mpsc::Sender<CreateTaskRequest>,
+        receiver: Arc<Mutex<mpsc::Receiver<CreateTaskRequest>>>,
+    ) -> WorkerPool {
         let mut workers = Vec::new();
-        for _ in 0..workers_count {
-            let worker = create_worker();
+        for i in 0..workers_count {
+            let worker = create_worker(i, receiver.clone());
             workers.push(worker);
         }
 
@@ -26,25 +37,32 @@ impl WorkerPool {
             workers,
             workers_count,
             currently_working_count: 0,
+            sender,
             receiver,
         }
     }
 
-    // pub fn make_task();
+    pub async fn do_task(&mut self, id: &str, task: CreateTaskRequest, task_status: TaskStatus) {
+        (*self).currently_working_count += 1;
+
+        let mut task_status_hashmap = task_status.lock().await;
+        let status = task_status_hashmap.get_mut(id).unwrap();
+        status.status = "RUNNING".to_string();
+        status.meta.started_at = Some(Utc::now().to_string());
+
+        let _ = (*self).sender.send(task).await;
+        (*self).currently_working_count -= 1;
+    }
 }
 
-async fn output() {
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
-}
-
-fn create_worker() -> Worker {
-    let worker_thread = tokio::spawn(async move {
-        loop {
-            let _ = output().await;
+fn create_worker(id: usize, receiver: Arc<Mutex<mpsc::Receiver<CreateTaskRequest>>>) -> Worker {
+    let worker_thread = task::spawn(async move { 
+        let mut receiver = receiver.lock().await;
+        while let Some(task) = receiver.recv().await {
+            println!("Task: {}", task.r#type);
+            println!("Thread id: {}", id);
         }
     });
 
-    Worker {
-        worker_thread,
-    }
+    Worker { worker_thread }
 }

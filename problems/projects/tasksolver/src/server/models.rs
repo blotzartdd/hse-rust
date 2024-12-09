@@ -1,5 +1,5 @@
 pub mod requests {
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct CreateTaskRequest {
@@ -18,8 +18,8 @@ pub mod requests {
 }
 
 pub mod responses {
-    use serde::{Serialize, Deserialize};
     use chrono::prelude::*;
+    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize)]
     pub struct CreateTaskResponse {
@@ -75,5 +75,3 @@ pub mod responses {
         pub tasks: usize,
     }
 }
-
-

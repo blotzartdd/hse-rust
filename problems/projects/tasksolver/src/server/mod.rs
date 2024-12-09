@@ -1,5 +1,5 @@
-pub mod server;
-pub mod routes;
 pub mod handlers;
-pub mod server_structures;
 pub mod models;
+pub mod routes;
+pub mod server;
+pub mod server_structures;
