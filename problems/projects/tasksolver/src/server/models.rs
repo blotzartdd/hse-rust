@@ -3,14 +3,14 @@ pub mod requests {
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct CreateTaskRequest {
-        r#type: String,
-        file: String,
-        args: String,
+        pub r#type: String,
+        pub file: String,
+        pub args: String,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct GetStatusRequest {
-        id: String,
+        pub id: String,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
@@ -19,6 +19,7 @@ pub mod requests {
 
 pub mod responses {
     use serde::{Serialize, Deserialize};
+    use chrono::prelude::*;
 
     #[derive(Serialize, Deserialize)]
     pub struct CreateTaskResponse {
@@ -27,22 +28,46 @@ pub mod responses {
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct GetStatusResponse {
-        pub id: String,
+        pub status: String,
         pub meta: MetaInformation,
         pub result: GetStatusResult,
     }
 
-    #[derive(Serialize, Deserialize, Clone)]
-    struct MetaInformation {
-        pub created_at: String,
-        pub started_at: String,
-        pub finished_at: String,
+    impl GetStatusResponse {
+        pub fn new() -> GetStatusResponse {
+            let meta = MetaInformation {
+                created_at: Utc::now().to_string(),
+                started_at: None,
+                finished_at: None,
+            };
+
+            let result = GetStatusResult {
+                stdout: "".to_string(),
+                stderr: None,
+            };
+
+            GetStatusResponse {
+                status: "WAIT".to_string(),
+                meta,
+                result,
+            }
+        }
     }
 
     #[derive(Serialize, Deserialize, Clone)]
-    struct GetStatusResult {
+    pub struct MetaInformation {
+        pub created_at: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub started_at: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub finished_at: Option<String>,
+    }
+
+    #[derive(Serialize, Deserialize, Clone)]
+    pub struct GetStatusResult {
         pub stdout: String,
-        pub stderr: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub stderr: Option<String>,
     }
 
     #[derive(Serialize, Deserialize)]

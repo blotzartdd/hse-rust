@@ -1,23 +1,21 @@
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 use tokio::task::JoinHandle;
-use tokio::sync::mpsc::{self, Sender, Receiver};
+use crate::server::models::requests::CreateTaskRequest;
 
-use tokio::net::TcpStream;
+use tokio::sync::mpsc;
 
 pub struct WorkerPool {
     workers: Vec<Worker>,
     workers_count: usize,
     currently_working_count: usize,
+    receiver: mpsc::Receiver<CreateTaskRequest>
 }
 
 pub struct Worker {
     worker_thread: JoinHandle<()>,
-    sender: Sender<()>,
-    receiver: Receiver<()>,
 }
 
 impl WorkerPool {
-    pub fn new(workers_count: usize) -> WorkerPool {
+    pub fn new(workers_count: usize, receiver: mpsc::Receiver<CreateTaskRequest>) -> WorkerPool {
         let mut workers = Vec::new();
         for _ in 0..workers_count {
             let worker = create_worker();
@@ -28,6 +26,7 @@ impl WorkerPool {
             workers,
             workers_count,
             currently_working_count: 0,
+            receiver,
         }
     }
 
@@ -45,10 +44,7 @@ fn create_worker() -> Worker {
         }
     });
 
-    let (sender, receiver) = mpsc::channel(1000);
     Worker {
         worker_thread,
-        sender,
-        receiver
     }
 }

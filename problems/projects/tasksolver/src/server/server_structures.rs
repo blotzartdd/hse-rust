@@ -10,4 +10,8 @@ pub fn init_task_queue() -> TaskQueue {
     Arc::new(Mutex::new(Vec::new()))
 }
 
-pub type TaskStatus = HashMap<String, GetStatusResponse>;
+pub type TaskStatus = Arc<Mutex<HashMap<String, GetStatusResponse>>>;
+
+pub fn init_task_status() -> TaskStatus {
+    Arc::new(Mutex::new(HashMap::new()))
+}
