@@ -59,7 +59,7 @@ fn create_worker(id: usize, receiver: Arc<Mutex<mpsc::Receiver<CreateTaskRequest
     let worker_thread = task::spawn(async move { 
         let mut receiver = receiver.lock().await;
         while let Some(task) = receiver.recv().await {
-            println!("Task: {}", task.r#type);
+            println!("Task code: {}", task.file);
             println!("Thread id: {}", id);
         }
     });
