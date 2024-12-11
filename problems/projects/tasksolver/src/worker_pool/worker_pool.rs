@@ -32,7 +32,7 @@ pub struct WorkerPool {
 }
 
 impl WorkerPool {
-    pub async fn new(
+    pub fn new(
         workers_count: usize,
         sender: mpsc::Sender<(
             String,
@@ -53,7 +53,7 @@ impl WorkerPool {
     ) -> WorkerPool {
         // let mut workers = Vec::new();
         for i in 0..workers_count {
-            create_worker(i, receiver.clone()).await;
+            create_worker(i, receiver.clone());
             // workers.push(worker);
         }
 
@@ -86,7 +86,7 @@ impl WorkerPool {
     }
 }
 
-async fn create_worker(
+fn create_worker(
     worker_id: usize,
     receiver: Arc<
         Mutex<

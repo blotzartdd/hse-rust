@@ -170,4 +170,17 @@ mod test_python_execute {
         assert_eq!(stderr, Some("Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nZeroDivisionError: division by zero\n".to_string()));
         assert_eq!(task_status, "FAILED".to_string());
     }
+
+    #[tokio::test]
+    async fn test_arguments() {
+        let python_code = "import sys
+
+print(sys.argv[1])".to_string();
+        let arguments = "test_argument".to_string();
+
+        let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
+        assert_eq!(stdout, "test_argument\n");
+        assert_eq!(stderr, None);
+        assert_eq!(task_status, "SUCCESS".to_string());
+    }
 }

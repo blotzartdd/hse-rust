@@ -40,8 +40,7 @@ pub async fn run(workers_count: usize, ip: &str, port: u16) {
             workers_count,
             task_sender,
             Arc::new(Mutex::new(task_receiver)),
-        )
-        .await,
+        ),
     ));
 
     let task_queue = init_task_queue();
