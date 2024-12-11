@@ -6,12 +6,12 @@ use warp::{self, Filter};
 
 fn jsonify_create_task(
 ) -> impl Filter<Extract = (CreateTaskRequest,), Error = warp::Rejection> + Clone {
-    warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+    warp::body::content_length_limit(1024 * 1024).and(warp::body::json())
 }
 
 fn jsonify_get_status_task(
 ) -> impl Filter<Extract = (GetStatusRequest,), Error = warp::Rejection> + Clone {
-    warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+    warp::body::content_length_limit(1024 * 1024).and(warp::body::json())
 }
 
 fn create_task_route(

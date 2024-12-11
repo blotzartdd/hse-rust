@@ -35,11 +35,14 @@ pub async fn run(workers_count: usize, ip: &str, port: u16) {
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
     let (task_sender, task_receiver) = mpsc::channel(4096);
-    let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
-        workers_count,
-        task_sender,
-        Arc::new(Mutex::new(task_receiver)),
-    ).await));
+    let worker_pool = Arc::new(Mutex::new(
+        WorkerPool::new(
+            workers_count,
+            task_sender,
+            Arc::new(Mutex::new(task_receiver)),
+        )
+        .await,
+    ));
 
     let task_queue = init_task_queue();
     let task_status = init_task_status();

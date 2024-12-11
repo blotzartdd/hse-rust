@@ -6,6 +6,8 @@ use clap::{Parser, Subcommand, ValueEnum};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
+use std::env;
+
 #[derive(Parser)]
 #[command(name = "Task Solver client")]
 #[command(about = "Client for interacting with the Task Solver server", long_about = None)]
@@ -140,6 +142,7 @@ fn get_task_count(client: &Client, address: &str, port: u16) -> Result<u32, Box<
 }
 
 fn main() {
+    env::set_var("RUST_BACKTRACE", "1");
     let cli = Cli::parse();
     let client = Client::new();
 
