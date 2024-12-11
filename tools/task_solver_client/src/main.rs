@@ -114,6 +114,7 @@ fn create_task(client: &Client, address: &str, port: u16, task_type: &TaskType, 
             Ok(BASE64_STANDARD.encode(binary_content))
         }
     }?;
+    println!("{}", file_content);
     let request = CreateTaskRequest {
         r#type: task_type.to_string(),
         file: file_content.to_string(),

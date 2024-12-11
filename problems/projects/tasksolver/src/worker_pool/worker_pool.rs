@@ -8,7 +8,6 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::Mutex;
 use tokio::task;
-use tokio::task::JoinHandle;
 
 pub struct WorkerPool {
     // pub workers: Vec<Worker>,
