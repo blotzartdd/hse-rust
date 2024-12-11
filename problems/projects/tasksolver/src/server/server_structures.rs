@@ -5,12 +5,17 @@ use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+/// Task queue from where threads will take their tasks
 pub type TaskQueue = Arc<Mutex<VecDeque<(String, CreateTaskRequest)>>>;
 
+/// Initialize task queue
 pub fn init_task_queue() -> TaskQueue {
     Arc::new(Mutex::new(VecDeque::new()))
 }
 
+/// Function for monitoring task queue and doing task when 
+/// free worker exist. This function being used in one of two
+/// main threads in server.rs
 pub async fn monitor_queue(
     task_queue: TaskQueue,
     task_status: TaskStatus,
@@ -30,8 +35,10 @@ pub async fn monitor_queue(
     }
 }
 
+/// Task status hashmap for all tasks on server
 pub type TaskStatus = Arc<Mutex<HashMap<String, GetStatusResponse>>>;
 
+/// Initialize task status hashmap
 pub fn init_task_status() -> TaskStatus {
     Arc::new(Mutex::new(HashMap::new()))
 }
