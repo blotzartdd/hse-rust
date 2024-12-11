@@ -22,6 +22,7 @@ pub async fn monitor_queue(
 
         if pool.currently_working_count < pool.workers_count {
             if let Some((id, task)) = queue.pop_front() {
+                println!("Getting task from queue!");
                 pool.do_task(&id, task, task_status.clone()).await;
             }
         }
