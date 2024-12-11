@@ -9,16 +9,21 @@ use tokio::sync::mpsc;
 use tokio::sync::Mutex;
 use tokio::task;
 
+// Struct of tokio threads that will be taking tasks from sender and execute them.
 pub struct WorkerPool {
     // pub workers: Vec<Worker>,
+    // Amount of threads in thread pool
     pub workers_count: usize,
+    // Amount of threads, that working on tasks right now
     pub currently_working_count: usize,
+    // Tokio sender that sends task id, task request, task status hashmap and current worker pool
     pub sender: mpsc::Sender<(
         String,
         CreateTaskRequest,
         TaskStatus,
         Arc<Mutex<WorkerPool>>,
     )>,
+    // Tokio receiver that recieve task id, task request, task status hashmap and current worker pool
     pub receiver: Arc<
         Mutex<
             mpsc::Receiver<(
@@ -32,6 +37,7 @@ pub struct WorkerPool {
 }
 
 impl WorkerPool {
+    /// Creates WorkerPool struct with given amount of workes, sender and receiver.
     pub fn new(
         workers_count: usize,
         sender: mpsc::Sender<(
@@ -66,6 +72,8 @@ impl WorkerPool {
         }
     }
 
+    /// Increases amount of currently working threads and send task in receiver
+    /// for free thread to pick up it
     pub async fn do_task(
         &mut self,
         id: &str,
@@ -86,6 +94,7 @@ impl WorkerPool {
     }
 }
 
+/// Creates tokio thread that will execute python scripts and binary files
 fn create_worker(
     worker_id: usize,
     receiver: Arc<
