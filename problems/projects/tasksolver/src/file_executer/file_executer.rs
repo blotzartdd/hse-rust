@@ -7,6 +7,7 @@ use std::io::Write;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
+/// Creates temporary .bin file with permissions to open, write and execute it for everyone
 fn create_temporary_binary_file(decoded_file: &Vec<u8>, id: &str) -> (String, String) {
     let path = format!("{}.bin", id);
     let mut temporary_file = File::create(path.clone()).unwrap();
