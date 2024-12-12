@@ -62,7 +62,7 @@ pub async fn get_task_count(queue_task: TaskQueue) -> Result<impl warp::Reply, I
 #[cfg(test)]
 mod test_create_task_handler {
     use crate::server::models::requests::CreateTaskRequest;
-    use crate::server::server_structures::{TaskQueue, init_task_queue, TaskStatus, init_task_status};
+    use crate::server::server_structures::{init_task_queue, init_task_status};
     use crate::server::handlers::create_task;
     use tokio;
 
@@ -94,3 +94,68 @@ mod test_create_task_handler {
         assert_eq!(result.is_ok(), true);
     }
 }
+
+#[cfg(test)]
+mod test_get_status_handler {
+    use tokio;
+    use crate::server::models::responses::GetStatusResponse;
+    use crate::server::server_structures::{init_task_queue, init_task_status};
+    use crate::server::models::requests::{CreateTaskRequest, GetStatusRequest};
+    use crate::server::handlers::{create_task, get_status};
+    use uuid::Uuid;
+
+    #[tokio::test]
+    async fn test_get_status_success() { 
+        let task_id = Uuid::new_v4().to_string();
+        let task_status = init_task_status();
+
+        let initial_status = GetStatusResponse::new();
+        let task_status_clone = task_status.clone();
+        let mut task_status_hashmap = task_status_clone.lock().await;
+        task_status_hashmap.insert(task_id.clone(), initial_status.clone());
+
+        drop(task_status_hashmap);
+
+        let request = GetStatusRequest {
+            id: task_id,
+        };
+
+        let result = get_status(request, task_status).await;
+        assert_eq!(result.is_ok(), true);
+    }
+}
+
+#[cfg(test)]
+mod test_get_task_count {
+    use tokio;
+    use crate::server::server_structures::{init_task_queue, init_task_status};
+    use crate::server::models::requests::CreateTaskRequest;
+    use crate::server::handlers::{create_task, get_task_count};
+
+    #[tokio::test]
+    async fn test_get_task_count() { 
+       let request = CreateTaskRequest {
+            r#type: "bin".to_string(),
+            file: "echo Hello, world!".to_string(),
+            args: "".to_string(),
+        };
+
+        let task_queue = init_task_queue();
+        let task_status = init_task_status();
+
+
+        let cloned_task_queue = task_queue.clone();
+        let cloned_task_status = task_status.clone();
+        assert_eq!(cloned_task_queue.lock().await.len(), 0);
+        assert_eq!(cloned_task_status.lock().await.len(), 0);
+        drop(cloned_task_queue);
+        drop(cloned_task_status);
+
+        let _ = create_task(request, task_queue.clone(), task_status.clone()).await;
+
+        let result = get_task_count(task_queue).await;
+        assert_eq!(result.is_ok(), true);
+    }
+
+}
+

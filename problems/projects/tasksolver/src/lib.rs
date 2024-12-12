@@ -7,6 +7,7 @@ use clap::Parser;
 use crate::input_parser::input_parser::ServerStartArguments;
 use crate::server::server::run;
 
+/// Runs task solver
 pub async fn start_tasksolver() {
     let server_start_arguments = ServerStartArguments::parse();
     run(
