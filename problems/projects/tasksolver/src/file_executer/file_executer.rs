@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
 use std::process::Stdio;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
 
 /// Creates temporary .bin file with permissions to open, write and execute it for everyone

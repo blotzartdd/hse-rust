@@ -58,8 +58,8 @@ impl WorkerPool {
         >,
     ) -> WorkerPool {
         // let mut workers = Vec::new();
-        for i in 0..workers_count {
-            create_worker(i, receiver.clone());
+        for _ in 0..workers_count {
+            create_worker(receiver.clone());
             // workers.push(worker);
         }
 
@@ -91,7 +91,6 @@ impl WorkerPool {
 
 /// Creates tokio thread that will execute python scripts and binary files
 fn create_worker(
-    worker_id: usize,
     receiver: Arc<
         Mutex<
             mpsc::Receiver<(
