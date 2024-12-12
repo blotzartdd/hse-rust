@@ -13,7 +13,7 @@ pub fn init_task_queue() -> TaskQueue {
     Arc::new(Mutex::new(VecDeque::new()))
 }
 
-/// Function for monitoring task queue and doing task when 
+/// Function for monitoring task queue and doing task when
 /// free worker exist. This function being used in one of two
 /// main threads in server.rs
 pub async fn monitor_queue(

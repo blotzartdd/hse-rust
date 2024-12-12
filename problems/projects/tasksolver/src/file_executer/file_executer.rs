@@ -1,11 +1,11 @@
 use base64::prelude::*;
-use std::process::Stdio;
-use tokio::process::Command;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::fs;
 use std::os::unix::fs::PermissionsExt;
+use std::process::Stdio;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::process::Command;
 
 /// Creates temporary .bin file with permissions to open, write and execute it for everyone
 fn create_temporary_binary_file(decoded_file: &Vec<u8>, id: &str) -> (String, String) {
@@ -106,8 +106,8 @@ pub async fn python_execute(
 
 #[cfg(test)]
 mod test_binary_execute {
-    use base64::prelude::*;
     use crate::file_executer::file_executer::binary_execute;
+    use base64::prelude::*;
 
     #[tokio::test]
     async fn test_echo() {
@@ -115,7 +115,8 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) = binary_execute(id, base64_encoded_file, arguments).await;
+        let (stdout, stderr, task_status) =
+            binary_execute(id, base64_encoded_file, arguments).await;
         assert_eq!(stdout, "Hello, world!\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, "SUCCESS".to_string());
@@ -127,9 +128,16 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello,\n world!");
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) = binary_execute(id, base64_encoded_file, arguments).await;
+        let (stdout, stderr, task_status) =
+            binary_execute(id, base64_encoded_file, arguments).await;
         assert_eq!(stdout, "Hello,\n");
-        assert_eq!(stderr, Some("./fb85a3a0-7e7f-4a20-8ced-65b3b2475145.bin: line 2: world!: command not found\n".to_string()));
+        assert_eq!(
+            stderr,
+            Some(
+                "./fb85a3a0-7e7f-4a20-8ced-65b3b2475145.bin: line 2: world!: command not found\n"
+                    .to_string()
+            )
+        );
         assert_eq!(task_status, "FAILED".to_string());
     }
 }
@@ -152,7 +160,8 @@ mod test_python_execute {
     #[tokio::test]
     async fn test_cycle() {
         let python_code = "for i in range(5):
-                            print(i)".to_string();
+                            print(i)"
+            .to_string();
         let arguments = "".to_string();
 
         let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
@@ -176,7 +185,8 @@ mod test_python_execute {
     async fn test_arguments() {
         let python_code = "import sys
 
-print(sys.argv[1])".to_string();
+print(sys.argv[1])"
+            .to_string();
         let arguments = "test_argument".to_string();
 
         let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;

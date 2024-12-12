@@ -1,9 +1,9 @@
-use tokio;
-use tasksolver::server::server::{kill_server, run};
-use tasksolver::server::models::requests::*;
-use tasksolver::server::models::responses::*;
 use base64::prelude::*;
 use reqwest::blocking::Client;
+use tasksolver::server::models::requests::*;
+use tasksolver::server::models::responses::*;
+use tasksolver::server::server::{kill_server, run};
+use tokio;
 
 fn build_server_url(address: &str, port: u16, endpoint: &str) -> String {
     format!("http://{}:{}/{}", address, port, endpoint)
@@ -32,9 +32,7 @@ async fn it_works() {
     let response_data: CreateTaskResponse = response.unwrap().json().unwrap();
     let id = response_data.id;
 
-    let get_status_request = GetStatusRequest {
-        id,
-    };
+    let get_status_request = GetStatusRequest { id };
 
     let response = client.get(&get_status_url).json(&get_status_request).send();
     assert_eq!(response.is_ok(), true);

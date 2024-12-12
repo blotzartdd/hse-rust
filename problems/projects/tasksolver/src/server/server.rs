@@ -11,8 +11,8 @@ use tokio::sync::{mpsc, Mutex};
 use tokio::task::{self, JoinHandle};
 use warp;
 
-/// Struct of server info that contains 
-/// thread pool with workers, server queue of tasks 
+/// Struct of server info that contains
+/// thread pool with workers, server queue of tasks
 /// and status of all tasks.
 pub struct ServerInfo {
     pub worker_pool: Arc<Mutex<WorkerPool>>,
@@ -35,20 +35,18 @@ impl ServerInfo {
     }
 }
 
-/// Runs server on different ip and port. Creates worker pool with given 
+/// Runs server on different ip and port. Creates worker pool with given
 /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
 /// Await both threads.
 pub async fn run(workers_count: usize, ip: &str, port: u16) {
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
     let (task_sender, task_receiver) = mpsc::channel(4096);
-    let worker_pool = Arc::new(Mutex::new(
-        WorkerPool::new(
-            workers_count,
-            task_sender,
-            Arc::new(Mutex::new(task_receiver)),
-        ),
-    ));
+    let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        workers_count,
+        task_sender,
+        Arc::new(Mutex::new(task_receiver)),
+    )));
 
     let task_queue = init_task_queue();
     let task_status = init_task_status();

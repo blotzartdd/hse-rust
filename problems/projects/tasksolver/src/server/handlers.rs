@@ -9,7 +9,7 @@ use warp;
 
 /// Handler for /create_task endpoint
 /// Gets create task request and push it to the task queue.
-/// Creates default get status response and insert it into 
+/// Creates default get status response and insert it into
 /// task status hashmap by generated uuid, then return
 /// response with id of task.
 pub async fn create_task(
@@ -61,12 +61,12 @@ pub async fn get_task_count(queue_task: TaskQueue) -> Result<impl warp::Reply, I
 
 #[cfg(test)]
 mod test_create_task_handler {
+    use crate::server::handlers::create_task;
     use crate::server::models::requests::CreateTaskRequest;
     use crate::server::server_structures::{init_task_queue, init_task_status};
-    use crate::server::handlers::create_task;
     use tokio;
 
-    #[tokio::test] 
+    #[tokio::test]
     async fn test_create_task() {
         let request = CreateTaskRequest {
             r#type: "bin".to_string(),
@@ -76,7 +76,6 @@ mod test_create_task_handler {
 
         let task_queue = init_task_queue();
         let task_status = init_task_status();
-
 
         let cloned_task_queue = task_queue.clone();
         let cloned_task_status = task_status.clone();
@@ -97,15 +96,15 @@ mod test_create_task_handler {
 
 #[cfg(test)]
 mod test_get_status_handler {
-    use tokio;
+    use crate::server::handlers::{create_task, get_status};
+    use crate::server::models::requests::{CreateTaskRequest, GetStatusRequest};
     use crate::server::models::responses::GetStatusResponse;
     use crate::server::server_structures::{init_task_queue, init_task_status};
-    use crate::server::models::requests::{CreateTaskRequest, GetStatusRequest};
-    use crate::server::handlers::{create_task, get_status};
+    use tokio;
     use uuid::Uuid;
 
     #[tokio::test]
-    async fn test_get_status_success() { 
+    async fn test_get_status_success() {
         let task_id = Uuid::new_v4().to_string();
         let task_status = init_task_status();
 
@@ -116,9 +115,7 @@ mod test_get_status_handler {
 
         drop(task_status_hashmap);
 
-        let request = GetStatusRequest {
-            id: task_id,
-        };
+        let request = GetStatusRequest { id: task_id };
 
         let result = get_status(request, task_status).await;
         assert_eq!(result.is_ok(), true);
@@ -127,14 +124,14 @@ mod test_get_status_handler {
 
 #[cfg(test)]
 mod test_get_task_count {
-    use tokio;
-    use crate::server::server_structures::{init_task_queue, init_task_status};
-    use crate::server::models::requests::CreateTaskRequest;
     use crate::server::handlers::{create_task, get_task_count};
+    use crate::server::models::requests::CreateTaskRequest;
+    use crate::server::server_structures::{init_task_queue, init_task_status};
+    use tokio;
 
     #[tokio::test]
-    async fn test_get_task_count() { 
-       let request = CreateTaskRequest {
+    async fn test_get_task_count() {
+        let request = CreateTaskRequest {
             r#type: "bin".to_string(),
             file: "echo Hello, world!".to_string(),
             args: "".to_string(),
@@ -142,7 +139,6 @@ mod test_get_task_count {
 
         let task_queue = init_task_queue();
         let task_status = init_task_status();
-
 
         let cloned_task_queue = task_queue.clone();
         let cloned_task_status = task_status.clone();
@@ -156,6 +152,4 @@ mod test_get_task_count {
         let result = get_task_count(task_queue).await;
         assert_eq!(result.is_ok(), true);
     }
-
 }
-

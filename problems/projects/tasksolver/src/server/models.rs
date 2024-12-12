@@ -90,7 +90,7 @@ pub mod responses {
         #[serde(skip_serializing_if = "Option::is_none")]
         pub stderr: Option<String>,
     }
-    
+
     /// Struct of get task count response
     #[derive(Serialize, Deserialize)]
     pub struct GetTaskCountResponse {

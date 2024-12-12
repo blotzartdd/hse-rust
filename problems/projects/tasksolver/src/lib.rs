@@ -3,10 +3,10 @@ pub mod input_parser;
 pub mod server;
 pub mod worker_pool;
 
-use clap::Parser;
-use tokio::task::JoinHandle;
 use crate::input_parser::input_parser::ServerStartArguments;
 use crate::server::server::run;
+use clap::Parser;
+use tokio::task::JoinHandle;
 
 /// Runs task solver with arguments from command line
 pub async fn start_tasksolver() {
