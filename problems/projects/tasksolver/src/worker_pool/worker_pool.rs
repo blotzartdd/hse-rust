@@ -81,12 +81,7 @@ impl WorkerPool {
         task_status: TaskStatus,
         worker_pool: Arc<Mutex<WorkerPool>>,
     ) {
-        println!("SENDING TASK!");
         self.currently_working_count += 1;
-        println!(
-            "currently_working_count: {}",
-            (*self).currently_working_count
-        );
         let _ = self
             .sender
             .send((id.to_string(), task, task_status, worker_pool))
@@ -109,13 +104,9 @@ fn create_worker(
     >,
 ) {
     task::spawn(async move {
-        println!("NEW THREAD!");
-        println!("Thread {} blocked receiver!", worker_id);
-
         loop {
             let mut receiver = receiver.lock().await;
             if let Some((id, task, task_status_hashmap, worker_pool)) = receiver.recv().await {
-                println!("Task of worker {} started!", worker_id);
                 let mut task_status = task_status_hashmap.lock().await;
                 let status = task_status.get_mut(&id).unwrap();
                 status.status = "RUNNING".to_string();
@@ -142,8 +133,6 @@ fn create_worker(
 
                 let mut pool = worker_pool.lock().await;
                 pool.currently_working_count -= 1;
-
-                println!("Task of worker {} finished!", worker_id);
             }
         }
     });
