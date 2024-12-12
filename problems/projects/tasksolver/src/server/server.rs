@@ -38,7 +38,7 @@ impl ServerInfo {
 /// Runs server on different ip and port. Creates worker pool with given 
 /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
 /// Await both threads.
-pub async fn run(workers_count: usize, ip: &str, port: u16) -> (JoinHandle<()>, JoinHandle<()>) {
+pub async fn run(workers_count: usize, ip: &str, port: u16) {
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
     let (task_sender, task_receiver) = mpsc::channel(4096);
@@ -63,10 +63,8 @@ pub async fn run(workers_count: usize, ip: &str, port: u16) -> (JoinHandle<()>, 
         monitor_queue(task_queue, task_status, worker_pool).await;
     });
 
-    // server.await.unwrap();
-    // queue_handler.await.unwrap();
-
-    (server, queue_handler)
+    server.await.unwrap();
+    queue_handler.await.unwrap();
 }
 
 /// Drops two main threads of server
