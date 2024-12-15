@@ -8,12 +8,14 @@ use warp::{self, Filter};
 fn jsonify_create_task(
 ) -> impl Filter<Extract = (CreateTaskRequest,), Error = warp::Rejection> + Clone {
     warp::body::content_length_limit(1024 * 1024).and(warp::body::json())
+    // warp::body::json()
 }
 
 /// Get data in json from get status request to give to warp method
 fn jsonify_get_status_task(
 ) -> impl Filter<Extract = (GetStatusRequest,), Error = warp::Rejection> + Clone {
     warp::body::content_length_limit(1024 * 1024).and(warp::body::json())
+    // warp::body::json()
 }
 
 /// Warp /create_task endpoint that calls create_task handler

@@ -5,7 +5,8 @@ pub mod requests {
     #[derive(Serialize, Deserialize, Clone)]
     pub struct CreateTaskRequest {
         // Type of file (python/bin)
-        pub r#type: String,
+        #[serde(rename = "type")]
+        pub task_type: String,
         // Python script or base64 encoded binary file
         pub file: String,
         // Arguments of executable

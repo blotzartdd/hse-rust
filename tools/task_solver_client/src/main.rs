@@ -119,6 +119,7 @@ fn create_task(client: &Client, address: &str, port: u16, task_type: &TaskType, 
         file: file_content.to_string(),
         args: args.to_string(),
     };
+    println!("{:?}", client.post(&url).json(&request).send());
     let response = client.post(&url).json(&request).send()?;
     let response_data: CreateTaskResponse = response.json()?;
     Ok(response_data.id)
@@ -142,6 +143,7 @@ fn get_task_count(client: &Client, address: &str, port: u16) -> Result<u32, Box<
 }
 
 fn main() {
+    env::set_var("RUST_BACKTRACE", "1");
     let cli = Cli::parse();
     let client = Client::new();
 

@@ -69,7 +69,7 @@ mod test_create_task_handler {
     #[tokio::test]
     async fn test_create_task() {
         let request = CreateTaskRequest {
-            r#type: "bin".to_string(),
+            task_type: "bin".to_string(),
             file: "echo Hello, world!".to_string(),
             args: "".to_string(),
         };
@@ -132,7 +132,7 @@ mod test_get_task_count {
     #[tokio::test]
     async fn test_get_task_count() {
         let request = CreateTaskRequest {
-            r#type: "bin".to_string(),
+            task_type: "bin".to_string(),
             file: "echo Hello, world!".to_string(),
             args: "".to_string(),
         };

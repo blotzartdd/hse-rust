@@ -13,7 +13,7 @@ use tokio::task;
 pub struct WorkerPool {
     // pub workers: Vec<Worker>,
     // Amount of threads in thread pool
-    pub workers_count: usize,
+    workers_count: usize,
     // Amount of threads, that working on tasks right now
     pub currently_working_count: usize,
     // Tokio sender that sends task id, task request, task status hashmap and current worker pool
@@ -72,6 +72,10 @@ impl WorkerPool {
         }
     }
 
+    pub fn is_free_worker(&self) -> bool {
+        return self.currently_working_count < self.workers_count;
+    }
+
     /// Increases amount of currently working threads and send task in receiver
     /// for free thread to pick up it
     pub async fn do_task(
@@ -106,15 +110,14 @@ fn create_worker(
         loop {
             let mut receiver = receiver.lock().await;
             if let Some((id, task, task_status_hashmap, worker_pool)) = receiver.recv().await {
-                let mut task_status = task_status_hashmap.lock().await;
-                let status = task_status.get_mut(&id).unwrap();
-                status.status = "RUNNING".to_string();
-                status.meta.started_at = Some(Utc::now().to_string());
+                {
+                    let mut task_status = task_status_hashmap.lock().await;
+                    let status = task_status.get_mut(&id).unwrap();
+                    status.status = "RUNNING".to_string();
+                    status.meta.started_at = Some(Utc::now().to_string());
+                }
 
-                drop(task_status);
-                drop(receiver);
-
-                let (stdout, stderr, execution_result) = match task.r#type.as_str() {
+                let (stdout, stderr, execution_result) = match task.task_type.as_str() {
                     "python" => python_execute(task.file, task.args).await,
                     "bin" => binary_execute(id.clone(), task.file, task.args).await,
                     _ => {

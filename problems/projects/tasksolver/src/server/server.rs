@@ -38,14 +38,14 @@ impl ServerInfo {
 /// Runs server on different ip and port. Creates worker pool with given
 /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
 /// Await both threads.
-pub async fn run(workers_count: usize, ip: &str, port: u16) {
+pub async fn start_tasksolver_server(workers_count: usize, ip: &str, port: u16) {
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
     let (task_sender, task_receiver) = mpsc::channel(4096);
     let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
         workers_count,
         task_sender,
-        Arc::new(Mutex::new(task_receiver)),
+        task_receiver,
     )));
 
     let task_queue = init_task_queue();
@@ -61,8 +61,8 @@ pub async fn run(workers_count: usize, ip: &str, port: u16) {
         monitor_queue(task_queue, task_status, worker_pool).await;
     });
 
-    server.await.unwrap();
-    queue_handler.await.unwrap();
+    server.await;
+    queue_handler.await;
 }
 
 /// Drops two main threads of server
