@@ -5,7 +5,6 @@ use chrono::prelude::*;
 
 use std::sync::Arc;
 
-use tokio::sync::mpsc;
 use tokio::sync::Mutex;
 use tokio::task;
 
@@ -17,50 +16,42 @@ pub struct WorkerPool {
     // Amount of threads, that working on tasks right now
     pub currently_working_count: usize,
     // Tokio sender that sends task id, task request, task status hashmap and current worker pool
-    pub sender: mpsc::Sender<(
+    pub sender: async_channel::Sender<(
         String,
         CreateTaskRequest,
         TaskStatus,
         Arc<Mutex<WorkerPool>>,
     )>,
     // Tokio receiver that recieve task id, task request, task status hashmap and current worker pool
-    pub receiver: Arc<
-        Mutex<
-            mpsc::Receiver<(
+    pub receiver: 
+            async_channel::Receiver<(
                 String,
                 CreateTaskRequest,
                 TaskStatus,
                 Arc<Mutex<WorkerPool>>,
             )>,
-        >,
-    >,
 }
 
 impl WorkerPool {
     /// Creates WorkerPool struct with given amount of workes, sender and receiver.
     pub fn new(
         workers_count: usize,
-        sender: mpsc::Sender<(
+        sender: async_channel::Sender<(
             String,
             CreateTaskRequest,
             TaskStatus,
             Arc<Mutex<WorkerPool>>,
         )>,
-        receiver: Arc<
-            Mutex<
-                mpsc::Receiver<(
+        receiver:
+                async_channel::Receiver<(
                     String,
                     CreateTaskRequest,
                     TaskStatus,
                     Arc<Mutex<WorkerPool>>,
                 )>,
-            >,
-        >,
     ) -> WorkerPool {
-        // let mut workers = Vec::new();
         for _ in 0..workers_count {
             create_worker(receiver.clone());
-            // workers.push(worker);
         }
 
         WorkerPool {
@@ -95,21 +86,17 @@ impl WorkerPool {
 
 /// Creates tokio thread that will execute python scripts and binary files
 fn create_worker(
-    receiver: Arc<
-        Mutex<
-            mpsc::Receiver<(
+    receiver: 
+            async_channel::Receiver<(
                 String,
                 CreateTaskRequest,
                 TaskStatus,
                 Arc<Mutex<WorkerPool>>,
             )>,
-        >,
-    >,
 ) {
     task::spawn(async move {
         loop {
-            let mut receiver = receiver.lock().await;
-            if let Some((id, task, task_status_hashmap, worker_pool)) = receiver.recv().await {
+            if let Ok((id, task, task_status_hashmap, worker_pool)) = receiver.recv().await {
                 {
                     let mut task_status = task_status_hashmap.lock().await;
                     let status = task_status.get_mut(&id).unwrap();

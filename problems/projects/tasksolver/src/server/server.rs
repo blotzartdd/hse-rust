@@ -7,7 +7,7 @@ use super::server_structures::{
 };
 use crate::worker_pool::worker_pool::WorkerPool;
 
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::Mutex;
 use tokio::task::{self, JoinHandle};
 use warp;
 
@@ -41,7 +41,7 @@ impl ServerInfo {
 pub async fn start_tasksolver_server(workers_count: usize, ip: &str, port: u16) {
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
-    let (task_sender, task_receiver) = mpsc::channel(4096);
+    let (task_sender, task_receiver) = async_channel::unbounded();
     let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
         workers_count,
         task_sender,
