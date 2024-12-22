@@ -34,7 +34,7 @@ pub async fn create_task(
     let task_status_clone = task_status.clone();
     let task_status_hashmap = task_status.task_status_chashmap;
 
-    let status = GetStatusResponse::new();
+    let status = GetStatusResponse::new_utc_status();
     let id = Uuid::new_v4().to_string();
     task_status_hashmap.insert(id.clone(), status);
 

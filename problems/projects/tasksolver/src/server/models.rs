@@ -49,7 +49,7 @@ pub mod responses {
 
     impl GetStatusResponse {
         /// Creates new status response to initialize task status
-        pub fn new() -> GetStatusResponse {
+        pub fn new_utc_status() -> GetStatusResponse {
             let meta = MetaInformation {
                 created_at: Utc::now().to_string(),
                 started_at: None,

@@ -23,7 +23,6 @@ impl TaskInfo {
 
 // Struct of tokio threads that will be taking tasks from sender and execute them.
 pub struct WorkerPool {
-    // pub workers: Vec<Worker>,
     // Amount of threads in thread pool
     workers_count: usize,
     // Tokio sender that sends task id, task request, task status hashmap and current worker pool
