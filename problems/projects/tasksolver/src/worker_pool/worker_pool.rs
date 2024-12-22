@@ -1,5 +1,5 @@
-use crate::file_executer::file_executer::{binary_execute, python_execute};
-use crate::server::models::requests::{TaskType, CreateTaskRequest};
+use crate::file_executer::file_executer::execute_file;
+use crate::server::models::requests::CreateTaskRequest;
 use crate::server::models::responses::TaskStatusEnum;
 use crate::server::server::TaskStatus;
 use chrono::prelude::*;
@@ -64,14 +64,8 @@ fn create_worker(receiver: async_channel::Receiver<TaskInfo>) {
             if let Ok(task_info) = receiver.recv().await {
                 start_running_task(&task_info.id, task_info.task_status.clone());
 
-                let task_request = task_info.task_request;
-                let (stdout, stderr, execution_result) = match task_request.task_type {
-                    TaskType::Python => python_execute(task_request.file, task_request.args).await,
-                    TaskType::Bin => {
-                        binary_execute(task_info.id.clone(), task_request.file, task_request.args)
-                            .await
-                    }
-                };
+                let (stdout, stderr, execution_result) =
+                    execute_file(task_info.task_request, task_info.id.clone()).await;
 
                 finish_running_task(
                     &task_info.id,
@@ -88,7 +82,7 @@ fn create_worker(receiver: async_channel::Receiver<TaskInfo>) {
 fn start_running_task(id: &str, task_status: TaskStatus) {
     let task_status = task_status.task_status_chashmap;
     let mut status = task_status.get_mut(id).unwrap();
-    status.status = TaskStatusEnum::RUNNING; 
+    status.status = TaskStatusEnum::RUNNING;
     status.meta.started_at = Some(Utc::now().to_string());
 }
 

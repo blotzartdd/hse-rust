@@ -1,3 +1,5 @@
+use crate::server::models::requests::{CreateTaskRequest, TaskType};
+use crate::server::models::responses::TaskStatusEnum;
 use base64::prelude::*;
 use std::fs;
 use std::fs::File;
@@ -5,7 +7,6 @@ use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
 use std::process::Stdio;
 use tokio::process::Command;
-use crate::server::models::responses::TaskStatusEnum;
 
 /// Creates temporary .bin file with permissions to open, write and execute it for everyone
 fn create_temporary_binary_file(decoded_file: &Vec<u8>, id: &str) -> (String, String) {
@@ -38,11 +39,11 @@ fn create_temporary_binary_file(decoded_file: &Vec<u8>, id: &str) -> (String, St
 /// assert_eq!(stdout, "Hello, world!\n");
 /// assert_eq!(stderr, None);
 /// assert_eq!(task_status, "SUCCESS".to_string());
-pub async fn binary_execute(
+async fn binary_execute(
     id: String,
     base64_encoded_file: String,
     arguments: String,
-) -> (String, Option<String>, TaskStatusEnum) {
+) -> std::process::Output {
     let decoded_file = BASE64_STANDARD.decode(base64_encoded_file).unwrap();
     let (temporary_file_path, execute_path) = create_temporary_binary_file(&decoded_file, &id);
 
@@ -56,14 +57,7 @@ pub async fn binary_execute(
 
     let _ = fs::remove_file(temporary_file_path);
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if !output.status.success() {
-        return (stdout, Some(stderr), TaskStatusEnum::ERROR);
-    }
-
-    (stdout, None, TaskStatusEnum::SUCCESS)
+    output
 }
 
 /// Execute python script and returns stdout, stderr and SUCCESS/ERROR task status
@@ -80,10 +74,7 @@ pub async fn binary_execute(
 /// assert_eq!(stdout, "Hello, world!");
 /// assert_eq!(stderr, None);
 /// assert_eq!(task_status, "SUCCESS".to_string());
-pub async fn python_execute(
-    python_code: String,
-    arguments: String,
-) -> (String, Option<String>, TaskStatusEnum) {
+async fn python_execute(python_code: String, arguments: String) -> std::process::Output {
     let output = Command::new("python3")
         .arg("-c")
         .arg(python_code)
@@ -93,6 +84,22 @@ pub async fn python_execute(
         .output()
         .await
         .unwrap();
+
+    output
+}
+
+pub async fn execute_file(
+    task: CreateTaskRequest,
+    id: String,
+) -> (String, Option<String>, TaskStatusEnum) {
+    let task_type = task.task_type;
+    let code = task.file;
+    let arguments = task.args;
+
+    let output = match task_type {
+        TaskType::Python => python_execute(code, arguments).await,
+        TaskType::Bin => binary_execute(id, code, arguments).await,
+    };
 
     let stdout = String::from_utf8(output.stdout).unwrap();
     let stderr = String::from_utf8(output.stderr).unwrap();
@@ -106,7 +113,8 @@ pub async fn python_execute(
 
 #[cfg(test)]
 mod test_binary_execute {
-    use crate::file_executer::file_executer::binary_execute;
+    use crate::file_executer::file_executer::execute_file;
+    use crate::server::models::requests::TaskType;
     use crate::server::models::responses::TaskStatusEnum;
     use base64::prelude::*;
 
@@ -117,7 +125,7 @@ mod test_binary_execute {
         let arguments = "".to_string();
 
         let (stdout, stderr, task_status) =
-            binary_execute(id, base64_encoded_file, arguments).await;
+            execute_file(TaskType::Bin, id, base64_encoded_file, arguments).await;
         assert_eq!(stdout, "Hello, world!\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
@@ -130,7 +138,7 @@ mod test_binary_execute {
         let arguments = "".to_string();
 
         let (stdout, stderr, task_status) =
-            binary_execute(id, base64_encoded_file, arguments).await;
+            execute_file(TaskType::Bin, id, base64_encoded_file, arguments).await;
         assert_eq!(stdout, "Hello,\n");
         assert_eq!(
             stderr,
@@ -139,37 +147,40 @@ mod test_binary_execute {
                     .to_string()
             )
         );
-        
-        assert_eq!(task_status, TaskStatusEnum::ERROR);
 
+        assert_eq!(task_status, TaskStatusEnum::ERROR);
     }
 }
 
 #[cfg(test)]
 mod test_python_execute {
-    use crate::file_executer::file_executer::python_execute;
+    use crate::file_executer::file_executer::execute_file;
+    use crate::server::models::requests::TaskType;
     use crate::server::models::responses::TaskStatusEnum;
 
     #[tokio::test]
     async fn test_print() {
+        let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475145".to_string();
         let python_code = "print('Hello, world!')".to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
+        let (stdout, stderr, task_status) =
+            execute_file(TaskType::Python, id, python_code, arguments).await;
         assert_eq!(stdout, "Hello, world!\n");
-        assert_eq!(stderr, None); 
+        assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
-
     }
 
     #[tokio::test]
     async fn test_cycle() {
+        let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475145".to_string();
         let python_code = "for i in range(5):
                             print(i)"
             .to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
+        let (stdout, stderr, task_status) =
+            execute_file(TaskType::Python, id, python_code, arguments).await;
         assert_eq!(stdout, "0\n1\n2\n3\n4\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
@@ -177,10 +188,12 @@ mod test_python_execute {
 
     #[tokio::test]
     async fn test_zero_division_error() {
+        let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475145".to_string();
         let python_code = "print(1 / 0)".to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
+        let (stdout, stderr, task_status) =
+            execute_file(TaskType::Python, id, python_code, arguments).await;
         assert_eq!(stdout, "");
         assert_eq!(stderr, Some("Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nZeroDivisionError: division by zero\n".to_string()));
         assert_eq!(task_status, TaskStatusEnum::ERROR);
@@ -188,13 +201,15 @@ mod test_python_execute {
 
     #[tokio::test]
     async fn test_arguments() {
+        let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475145".to_string();
         let python_code = "import sys
 
 print(sys.argv[1])"
             .to_string();
         let arguments = "test_argument".to_string();
 
-        let (stdout, stderr, task_status) = python_execute(python_code, arguments).await;
+        let (stdout, stderr, task_status) =
+            execute_file(TaskType::Python, id, python_code, arguments).await;
         assert_eq!(stdout, "test_argument\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
