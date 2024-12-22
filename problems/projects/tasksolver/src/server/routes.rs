@@ -20,7 +20,7 @@ fn jsonify_get_status_task(
 
 /// Warp /create_task endpoint that calls create_task handler
 fn create_task_route(
-    worker_pool: Arc<Mutex<WorkerPool>>,
+    worker_pool: Arc<WorkerPool>,
     task_status: TaskStatus,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("create_task")
@@ -54,7 +54,7 @@ fn get_status_route(
 
 /// Warp /get_task_count endpoint that calls get_task_count handler
 fn get_task_count_route(
-    worker_pool: Arc<Mutex<WorkerPool>>,
+    worker_pool: Arc<WorkerPool>,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("get_task_count")
         .and(warp::get())

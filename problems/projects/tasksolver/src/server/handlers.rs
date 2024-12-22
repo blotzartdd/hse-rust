@@ -2,7 +2,6 @@ use std::convert::Infallible;
 
 use crate::worker_pool::worker_pool::{TaskInfo, WorkerPool};
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 use super::models::requests::{CreateTaskRequest, GetStatusRequest};
 use super::models::responses::{CreateTaskResponse, GetStatusResponse, GetTaskCountResponse};
@@ -28,7 +27,7 @@ impl std::fmt::Display for TaskNotExistError {
 /// response with id of task.
 pub async fn create_task(
     request: CreateTaskRequest,
-    worker_pool: Arc<Mutex<WorkerPool>>,
+    worker_pool: Arc<WorkerPool>,
     task_status: TaskStatus,
 ) -> Result<CreateTaskResponse, Infallible> {
     let task_status_clone = task_status.clone();
@@ -38,7 +37,6 @@ pub async fn create_task(
     let id = Uuid::new_v4().to_string();
     task_status_hashmap.insert(id.clone(), status);
 
-    let mut worker_pool = worker_pool.lock().await;
     let task_info = TaskInfo::new(id.to_string(), request, task_status_clone);
     worker_pool.do_task(task_info).await;
 
@@ -69,9 +67,9 @@ pub async fn get_status(
 /// Handler for /get_task_count endpoint
 /// Returns amount of tasks in task queue
 pub async fn get_task_count(
-    worker_pool: Arc<Mutex<WorkerPool>>,
+    worker_pool: Arc<WorkerPool>,
 ) -> Result<GetTaskCountResponse, Infallible> {
-    let sender = worker_pool.lock().await.sender.clone();
+    let sender = worker_pool.sender.clone();
     let response = GetTaskCountResponse {
         tasks: sender.len(),
     };
@@ -88,18 +86,17 @@ mod test_create_task {
     use crate::worker_pool::worker_pool::WorkerPool;
     use base64::prelude::*;
     use std::sync::Arc;
-    use tokio::sync::Mutex;
 
     #[tokio::test]
     async fn test_create_python_task() {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
         let task_status = TaskStatus::new();
 
         let python_code = "print('Hello, world!')".to_string();
@@ -125,11 +122,11 @@ mod test_create_task {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
         let task_status = TaskStatus::new();
 
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
@@ -167,11 +164,11 @@ mod test_get_status {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
         let task_status = TaskStatus::new();
         let task_status_clone = task_status.clone();
 
@@ -199,14 +196,6 @@ mod test_get_status {
 
     #[tokio::test]
     async fn test_get_status_of_not_exist_task() {
-        let workers_count = 4;
-
-        let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        )));
         let task_status = TaskStatus::new();
         let task_status_clone = task_status.clone();
         let id = "random-UUID".to_string();
@@ -228,18 +217,17 @@ mod test_get_task_count {
     use crate::worker_pool::worker_pool::WorkerPool;
     use base64::prelude::*;
     use std::sync::Arc;
-    use tokio::sync::Mutex;
 
     #[tokio::test]
     async fn test_get_queue_count_of_one_task() {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
         let task_status = TaskStatus::new();
 
         let python_code = "print('Hello, world!')".to_string();
@@ -267,11 +255,11 @@ mod test_get_task_count {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
 
         let result = get_task_count(worker_pool).await.unwrap();
         assert_eq!(result.tasks, 0);
@@ -282,11 +270,11 @@ mod test_get_task_count {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+        let worker_pool = Arc::new(WorkerPool::new(
             workers_count,
             task_sender,
             task_receiver,
-        )));
+        ));
 
         let task_status = TaskStatus::new();
 

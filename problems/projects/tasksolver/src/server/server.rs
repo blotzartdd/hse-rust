@@ -6,7 +6,6 @@ use super::models::responses::GetStatusResponse;
 use super::routes::routes_handler;
 use crate::worker_pool::worker_pool::WorkerPool;
 
-use tokio::sync::Mutex;
 use tokio::task;
 use warp;
 
@@ -29,13 +28,13 @@ impl TaskStatus {
 /// thread pool with workers, server queue of tasks
 /// and status of all tasks.
 pub struct ServerInfo {
-    pub worker_pool: Arc<Mutex<WorkerPool>>,
+    pub worker_pool: Arc<WorkerPool>,
     pub task_status: TaskStatus,
 }
 
 impl ServerInfo {
     /// Creates new server info struct
-    pub fn new(worker_pool: Arc<Mutex<WorkerPool>>, task_status: TaskStatus) -> ServerInfo {
+    pub fn new(worker_pool: Arc<WorkerPool>, task_status: TaskStatus) -> ServerInfo {
         ServerInfo {
             worker_pool,
             task_status,
@@ -50,11 +49,11 @@ pub async fn start_tasksolver_server(workers_count: usize, ip: &str, port: u16) 
     let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
     let (task_sender, task_receiver) = async_channel::unbounded();
-    let worker_pool = Arc::new(Mutex::new(WorkerPool::new(
+    let worker_pool = Arc::new(WorkerPool::new(
         workers_count,
         task_sender,
         task_receiver,
-    )));
+    ));
 
     let task_status = TaskStatus::new();
     let server_info = ServerInfo::new(worker_pool.clone(), task_status);

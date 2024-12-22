@@ -54,7 +54,7 @@ impl WorkerPool {
 
     /// Increases amount of currently working threads and send task in receiver
     /// for free thread to pick up it
-    pub async fn do_task(&mut self, task_info: TaskInfo) {
+    pub async fn do_task(&self, task_info: TaskInfo) {
         let _ = self.sender.send(task_info).await;
     }
 }
