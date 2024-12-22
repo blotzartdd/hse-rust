@@ -1,12 +1,20 @@
 pub mod requests {
     use serde::{Deserialize, Serialize};
 
+    /// Enum for task type
+    #[derive(Clone, Serialize, Deserialize, Debug)]
+    #[serde(rename_all = "lowercase")]
+    pub enum TaskType {
+        Python,
+        Bin,
+    }
+
     /// Struct of create task request (POST)
     #[derive(Serialize, Deserialize, Clone)]
     pub struct CreateTaskRequest {
         // Type of file (python/bin)
         #[serde(rename = "type")]
-        pub task_type: String,
+        pub task_type: TaskType,
         // Python script or base64 encoded binary file
         pub file: String,
         // Arguments of executable
@@ -36,11 +44,20 @@ pub mod responses {
         pub id: String,
     }
 
+    /// Enum for task status
+    #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+    pub enum TaskStatusEnum {
+        WAIT,
+        RUNNING,
+        SUCCESS,
+        ERROR,
+    }
+
     /// Struct of get status response
     #[derive(Serialize, Deserialize, Clone)]
     pub struct GetStatusResponse {
         /// Task status (WAIT/RUNNING/SUCCESS/ERROR)
-        pub status: String,
+        pub status: TaskStatusEnum,
         /// Meta information (created_at, started_at, finished_at)
         pub meta: MetaInformation,
         /// Execution result (stdout, stderr)
@@ -62,7 +79,7 @@ pub mod responses {
             };
 
             GetStatusResponse {
-                status: "WAIT".to_string(),
+                status: TaskStatusEnum::WAIT,
                 meta,
                 result,
             }
