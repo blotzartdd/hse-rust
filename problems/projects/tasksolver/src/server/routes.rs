@@ -2,6 +2,7 @@ use super::handlers;
 use super::models::requests::{CreateTaskRequest, GetStatusRequest};
 use super::server::{ServerInfo, TaskStatus};
 use crate::worker_pool::worker_pool::WorkerPool;
+use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{self, Filter};
 
@@ -16,10 +17,9 @@ fn create_task_route(
         .and(warp::any().map(move || worker_pool.clone()))
         .and(warp::any().map(move || task_status.clone()))
         .and_then(|task_request, worker_pool, task_status| async move {
-            match handlers::create_task(task_request, worker_pool, task_status).await {
-                Ok(create_task_response) => Ok(warp::reply::json(&create_task_response)),
-                Err(err) => Err(err),
-            }
+            handlers::create_task(task_request, worker_pool, task_status)
+                .await
+                .map(|create_task_response| warp::reply::json(&create_task_response))
         })
 }
 
@@ -32,10 +32,9 @@ fn get_status_route(
         .and(warp::body::json())
         .and(warp::any().map(move || task_status.clone()))
         .and_then(|get_status_request, task_status| async move {
-            match handlers::get_status(get_status_request, task_status).await {
-                Ok(get_task_status_response) => Ok(warp::reply::json(&get_task_status_response)),
-                Err(err) => Err(err),
-            }
+            handlers::get_status(get_status_request, task_status)
+                .await
+                .map(|get_status_response| warp::reply::json(&get_status_response))
         })
 }
 
@@ -47,10 +46,9 @@ fn get_task_count_route(
         .and(warp::get())
         .and(warp::any().map(move || worker_pool.clone()))
         .and_then(|worker_pool| async move {
-            match handlers::get_task_count(worker_pool).await {
-                Ok(get_task_count_response) => Ok(warp::reply::json(&get_task_count_response)),
-                Err(err) => Err(err),
-            }
+            handlers::get_task_count(worker_pool)
+                .await
+                .map(|get_task_count_response| warp::reply::json(&get_task_count_response))
         })
 }
 

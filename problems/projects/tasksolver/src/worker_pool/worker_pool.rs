@@ -1,8 +1,6 @@
 use crate::file_executer::file_executer::execute_file;
 use crate::server::models::requests::CreateTaskRequest;
-use crate::server::models::responses::TaskStatusEnum;
 use crate::server::server::TaskStatus;
-use chrono::prelude::*;
 
 use tokio::task;
 
@@ -57,6 +55,10 @@ impl WorkerPool {
     pub async fn do_task(&self, task_info: TaskInfo) {
         let _ = self.sender.send(task_info).await;
     }
+
+    pub fn get_task_amount(&self) -> usize {
+        self.sender.len()
+    }
 }
 
 /// Creates tokio thread that will execute python scripts and binary files
@@ -64,41 +66,14 @@ fn create_worker(receiver: async_channel::Receiver<TaskInfo>) {
     task::spawn(async move {
         loop {
             if let Ok(task_info) = receiver.recv().await {
-                start_running_task(&task_info.id, task_info.task_status.clone());
+                let mut task_status = task_info.task_status;
+                task_status.start_running_task(&task_info.id);
 
                 let (stdout, stderr, execution_result) =
                     execute_file(task_info.task_request, task_info.id.clone()).await;
 
-                finish_running_task(
-                    &task_info.id,
-                    task_info.task_status,
-                    stdout,
-                    stderr,
-                    execution_result,
-                );
+                task_status.finish_running_task(&task_info.id, stdout, stderr, execution_result);
             }
         }
     });
-}
-
-fn start_running_task(id: &str, task_status: TaskStatus) {
-    let task_status = task_status.task_status_chashmap;
-    let mut status = task_status.get_mut(id).unwrap();
-    status.status = TaskStatusEnum::RUNNING;
-    status.meta.started_at = Some(Utc::now().to_string());
-}
-
-fn finish_running_task(
-    id: &str,
-    task_status: TaskStatus,
-    stdout: String,
-    stderr: Option<String>,
-    execution_result: TaskStatusEnum,
-) {
-    let task_status = task_status.task_status_chashmap;
-    let mut status = task_status.get_mut(id).unwrap();
-    status.result.stdout = stdout;
-    status.result.stderr = stderr;
-    status.status = execution_result;
-    status.meta.finished_at = Some(Utc::now().to_string());
 }

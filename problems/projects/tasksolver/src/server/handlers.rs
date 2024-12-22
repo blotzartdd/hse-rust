@@ -7,8 +7,6 @@ use super::models::requests::{CreateTaskRequest, GetStatusRequest};
 use super::models::responses::{CreateTaskResponse, GetStatusResponse, GetTaskCountResponse};
 use super::server::TaskStatus;
 
-use uuid::Uuid;
-
 // Error for get status func
 // Returns ff task with given id doesn't exist
 #[derive(Debug, Clone)]
@@ -30,14 +28,9 @@ pub async fn create_task(
     worker_pool: Arc<WorkerPool>,
     task_status: TaskStatus,
 ) -> Result<CreateTaskResponse, Infallible> {
-    let task_status_clone = task_status.clone();
-    let task_status_hashmap = task_status.task_status_chashmap;
+    let id = task_status.add_new_task();
 
-    let status = GetStatusResponse::new_utc_status();
-    let id = Uuid::new_v4().to_string();
-    task_status_hashmap.insert(id.clone(), status);
-
-    let task_info = TaskInfo::new(id.to_string(), request, task_status_clone);
+    let task_info = TaskInfo::new(id.to_string(), request, task_status);
     worker_pool.do_task(task_info).await;
 
     let response = CreateTaskResponse { id };
@@ -54,14 +47,8 @@ pub async fn get_status(
     task_status: TaskStatus,
 ) -> Result<GetStatusResponse, Infallible> {
     let id = request.id;
-    let task_status_hashmap = task_status.task_status_chashmap.clone();
 
-    if let Some(status) = task_status_hashmap.get(&id) {
-        return Ok(status.clone());
-    }
-
-    let error_status = GetStatusResponse::new_error_status();
-    Ok(error_status)
+    Ok(task_status.get_status_by_id(&id))
 }
 
 /// Handler for /get_task_count endpoint
@@ -69,9 +56,8 @@ pub async fn get_status(
 pub async fn get_task_count(
     worker_pool: Arc<WorkerPool>,
 ) -> Result<GetTaskCountResponse, Infallible> {
-    let sender = worker_pool.sender.clone();
     let response = GetTaskCountResponse {
-        tasks: sender.len(),
+        tasks: worker_pool.get_task_amount(),
     };
 
     Ok(response)
@@ -92,11 +78,7 @@ mod test_create_task {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
         let task_status = TaskStatus::new();
 
         let python_code = "print('Hello, world!')".to_string();
@@ -122,11 +104,7 @@ mod test_create_task {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
         let task_status = TaskStatus::new();
 
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
@@ -164,11 +142,7 @@ mod test_get_status {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
         let task_status = TaskStatus::new();
         let task_status_clone = task_status.clone();
 
@@ -211,7 +185,7 @@ mod test_get_status {
 
 #[cfg(test)]
 mod test_get_task_count {
-    use crate::server::handlers::{create_task,  get_task_count};
+    use crate::server::handlers::{create_task, get_task_count};
     use crate::server::models::requests::{CreateTaskRequest, TaskType};
     use crate::server::server::TaskStatus;
     use crate::worker_pool::worker_pool::WorkerPool;
@@ -223,11 +197,7 @@ mod test_get_task_count {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
         let task_status = TaskStatus::new();
 
         let python_code = "print('Hello, world!')".to_string();
@@ -255,11 +225,7 @@ mod test_get_task_count {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
 
         let result = get_task_count(worker_pool).await.unwrap();
         assert_eq!(result.tasks, 0);
@@ -270,11 +236,7 @@ mod test_get_task_count {
         let workers_count = 4;
 
         let (task_sender, task_receiver) = async_channel::unbounded();
-        let worker_pool = Arc::new(WorkerPool::new(
-            workers_count,
-            task_sender,
-            task_receiver,
-        ));
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
 
         let task_status = TaskStatus::new();
 
