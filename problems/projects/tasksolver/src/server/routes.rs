@@ -3,20 +3,7 @@ use super::models::requests::{CreateTaskRequest, GetStatusRequest};
 use super::server::{ServerInfo, TaskStatus};
 use crate::worker_pool::worker_pool::WorkerPool;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use warp::{self, Filter};
-
-/// Get data in json from create task request to give to warp method
-fn jsonify_create_task(
-) -> impl Filter<Extract = (CreateTaskRequest,), Error = warp::Rejection> + Clone {
-    warp::body::json()
-}
-
-/// Get data in json from get status request to give to warp method
-fn jsonify_get_status_task(
-) -> impl Filter<Extract = (GetStatusRequest,), Error = warp::Rejection> + Clone {
-    warp::body::json()
-}
 
 /// Warp /create_task endpoint that calls create_task handler
 fn create_task_route(
@@ -25,7 +12,7 @@ fn create_task_route(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("create_task")
         .and(warp::post())
-        .and(jsonify_create_task())
+        .and(warp::body::json())
         .and(warp::any().map(move || worker_pool.clone()))
         .and(warp::any().map(move || task_status.clone()))
         .and_then(|task_request, worker_pool, task_status| async move {
@@ -42,7 +29,7 @@ fn get_status_route(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("get_status")
         .and(warp::get())
-        .and(jsonify_get_status_task())
+        .and(warp::body::json())
         .and(warp::any().map(move || task_status.clone()))
         .and_then(|get_status_request, task_status| async move {
             match handlers::get_status(get_status_request, task_status).await {
