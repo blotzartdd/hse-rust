@@ -1,8 +1,6 @@
 use super::handlers;
-use super::models::requests::{CreateTaskRequest, GetStatusRequest};
 use super::server::{ServerInfo, TaskStatus};
 use crate::worker_pool::worker_pool::WorkerPool;
-use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{self, Filter};
 
