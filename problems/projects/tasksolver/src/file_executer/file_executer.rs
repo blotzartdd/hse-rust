@@ -114,7 +114,7 @@ pub async fn execute_file(
 #[cfg(test)]
 mod test_binary_execute {
     use crate::file_executer::file_executer::execute_file;
-    use crate::server::models::requests::TaskType;
+    use crate::server::models::requests::{CreateTaskRequest, TaskType};
     use crate::server::models::responses::TaskStatusEnum;
     use base64::prelude::*;
 
@@ -124,8 +124,8 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Bin, id, base64_encoded_file, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "Hello, world!\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
@@ -137,8 +137,8 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello,\n world!");
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Bin, id, base64_encoded_file, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "Hello,\n");
         assert_eq!(
             stderr,
@@ -155,7 +155,7 @@ mod test_binary_execute {
 #[cfg(test)]
 mod test_python_execute {
     use crate::file_executer::file_executer::execute_file;
-    use crate::server::models::requests::TaskType;
+    use crate::server::models::requests::{CreateTaskRequest, TaskType};
     use crate::server::models::responses::TaskStatusEnum;
 
     #[tokio::test]
@@ -164,8 +164,8 @@ mod test_python_execute {
         let python_code = "print('Hello, world!')".to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Python, id, python_code, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Python, python_code, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "Hello, world!\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
@@ -179,8 +179,8 @@ mod test_python_execute {
             .to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Python, id, python_code, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Python, python_code, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "0\n1\n2\n3\n4\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);
@@ -192,8 +192,8 @@ mod test_python_execute {
         let python_code = "print(1 / 0)".to_string();
         let arguments = "".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Python, id, python_code, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Python, python_code, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "");
         assert_eq!(stderr, Some("Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nZeroDivisionError: division by zero\n".to_string()));
         assert_eq!(task_status, TaskStatusEnum::ERROR);
@@ -208,8 +208,8 @@ print(sys.argv[1])"
             .to_string();
         let arguments = "test_argument".to_string();
 
-        let (stdout, stderr, task_status) =
-            execute_file(TaskType::Python, id, python_code, arguments).await;
+        let create_task_request = CreateTaskRequest::new(TaskType::Python, python_code, arguments);
+        let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "test_argument\n");
         assert_eq!(stderr, None);
         assert_eq!(task_status, TaskStatusEnum::SUCCESS);

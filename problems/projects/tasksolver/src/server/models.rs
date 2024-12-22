@@ -21,6 +21,16 @@ pub mod requests {
         pub args: String,
     }
 
+    impl CreateTaskRequest {
+        pub fn new(task_type: TaskType, file: String, args: String) -> CreateTaskRequest {
+            CreateTaskRequest {
+                task_type,
+                file,
+                args,
+            }
+        }
+    }
+
     /// Struct of get status request (GET)
     #[derive(Serialize, Deserialize, Clone)]
     pub struct GetStatusRequest {
