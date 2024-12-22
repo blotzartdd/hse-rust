@@ -7,7 +7,7 @@ use super::routes::routes_handler;
 use crate::worker_pool::worker_pool::WorkerPool;
 
 use tokio::sync::Mutex;
-use tokio::task::{self, JoinHandle};
+use tokio::task;
 use warp;
 
 /// Task status hashmap for all tasks on server
@@ -64,10 +64,4 @@ pub async fn start_tasksolver_server(workers_count: usize, ip: &str, port: u16) 
     });
 
     let _ = server.await;
-}
-
-/// Drops two main threads of server
-pub fn kill_server(server: JoinHandle<()>, queue_handler: JoinHandle<()>) {
-    drop(server);
-    drop(queue_handler);
 }

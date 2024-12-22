@@ -6,6 +6,7 @@ use chrono::prelude::*;
 
 use tokio::task;
 
+/// Struct of all needed task information
 pub struct TaskInfo {
     pub id: String,
     pub task_request: CreateTaskRequest,
@@ -13,6 +14,7 @@ pub struct TaskInfo {
 }
 
 impl TaskInfo {
+    /// Creates new task info struct from id, request and status concurrent hashmap
     pub fn new(id: String, task_request: CreateTaskRequest, task_status: TaskStatus) -> TaskInfo {
         TaskInfo {
             id,
@@ -22,13 +24,13 @@ impl TaskInfo {
     }
 }
 
-// Struct of tokio threads that will be taking tasks from sender and execute them.
+/// Struct of tokio threads that will be taking tasks from sender and execute them.
 pub struct WorkerPool {
-    // Amount of threads in thread pool
+    /// Amount of threads in thread pool
     workers_count: usize,
-    // Tokio sender that sends task id, task request, task status hashmap and current worker pool
+    /// Tokio sender that sends task id, task request, task status hashmap and current worker pool
     pub sender: async_channel::Sender<TaskInfo>,
-    // Tokio receiver that recieve task id, task request, task status hashmap and current worker pool
+    /// Tokio receiver that recieve task id, task request, task status hashmap and current worker pool
     pub receiver: async_channel::Receiver<TaskInfo>,
 }
 

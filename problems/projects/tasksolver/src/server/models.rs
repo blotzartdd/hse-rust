@@ -61,12 +61,13 @@ pub mod responses {
         RUNNING,
         SUCCESS,
         ERROR,
+        NOTEXIST,
     }
 
     /// Struct of get status response
     #[derive(Serialize, Deserialize, Clone)]
     pub struct GetStatusResponse {
-        /// Task status (WAIT/RUNNING/SUCCESS/ERROR)
+        /// Task status (WAIT/RUNNING/SUCCESS/ERROR/NOTEXIST)
         pub status: TaskStatusEnum,
         /// Meta information (created_at, started_at, finished_at)
         pub meta: MetaInformation,
@@ -90,6 +91,25 @@ pub mod responses {
 
             GetStatusResponse {
                 status: TaskStatusEnum::WAIT,
+                meta,
+                result,
+            }
+        }
+
+        pub fn new_error_status() -> GetStatusResponse {
+            let meta = MetaInformation {
+                created_at: Utc::now().to_string(),
+                started_at: None,
+                finished_at: None,
+            };
+
+            let result = GetStatusResult {
+                stdout: "".to_string(),
+                stderr: None,
+            };
+
+            GetStatusResponse {
+                status: TaskStatusEnum::NOTEXIST,
                 meta,
                 result,
             }

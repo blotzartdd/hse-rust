@@ -24,22 +24,24 @@ fn create_temporary_binary_file(decoded_file: &Vec<u8>, id: &str) -> (String, St
 }
 
 /// Execute base64 encoded binary file (by creating temporary file with name of id)
-/// and returns stdout, stderr and SUCCESS/ERROR task status
+/// and returns output
 ///
 /// # Examples
 ///
 /// use tasksolver::file_executer::file_executer::binary_execute;
+/// use tasksolver::server::models::responses::TaskStatusEnum;
 ///
 /// let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475144";
 /// let base64_encoded_file = "ZWNobyBIZWxsbywgd29ybGQh"; // -> echo Hello, world!
 /// let arguments = "Hello, world!".to_string();
 ///
-/// let (stdout, stderr, task_status) = binary_execute(id, base64_encoded_file, arguments);
+/// let output = binary_execute(id, base64_encoded_file, arguments).await;
 ///
-/// assert_eq!(stdout, "Hello, world!\n");
-/// assert_eq!(stderr, None);
-/// assert_eq!(task_status, "SUCCESS".to_string());
-async fn binary_execute(
+/// assert_eq!(output.stdout, "Hello, world!\n");
+/// assert_eq!(output.stderr, None);
+/// assert_eq!(output.status.success(), true);
+///
+pub async fn binary_execute(
     id: String,
     base64_encoded_file: String,
     arguments: String,
@@ -60,21 +62,22 @@ async fn binary_execute(
     output
 }
 
-/// Execute python script and returns stdout, stderr and SUCCESS/ERROR task status
+/// Execute python script and returns output
 ///
 /// # Examples
 ///
 /// use tasksolver::file_executer::file_executer::python_execute;
+/// use crate::server::models::responses::TaskStatusEnum;
 ///
 /// let python_code = "print(Hello, world!)";
 /// let arguments = "".to_string();
 ///
-/// let (stdout, stderr, task_status) = python_execute(python_code, arguments);
+/// let output = python_execute(python_code, arguments).await;
 ///
-/// assert_eq!(stdout, "Hello, world!");
-/// assert_eq!(stderr, None);
-/// assert_eq!(task_status, "SUCCESS".to_string());
-async fn python_execute(python_code: String, arguments: String) -> std::process::Output {
+/// assert_eq!(output.stdout, "Hello, world!");
+/// assert_eq!(output.stderr, None);
+/// assert_eq!(output.status.success(), true);
+pub async fn python_execute(python_code: String, arguments: String) -> std::process::Output {
     let output = Command::new("python3")
         .arg("-c")
         .arg(python_code)
@@ -88,6 +91,24 @@ async fn python_execute(python_code: String, arguments: String) -> std::process:
     output
 }
 
+/// Execute python script or binary file and returns stdout, stderr and task status
+///
+/// # Examples
+///
+/// use tasksolver::file_executer::file_executer::execute_file;
+/// use crate::server::models::requests::{CreateTaskRequest, TaskType};
+/// use crate::server::models::responses::TaskStatusEnum;
+///
+/// let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475144".to_string();
+/// let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
+/// let arguments = "".to_string();
+///
+/// let create_task_request = CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+/// let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
+///
+/// assert_eq!(stdout, "Hello, world!");
+/// assert_eq!(stderr, None);
+/// assert_eq!(task_status, TaskStatusEnum::SUCCESS);
 pub async fn execute_file(
     task: CreateTaskRequest,
     id: String,
@@ -124,7 +145,8 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello, world!");
         let arguments = "".to_string();
 
-        let create_task_request = CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+        let create_task_request =
+            CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
         let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "Hello, world!\n");
         assert_eq!(stderr, None);
@@ -137,7 +159,8 @@ mod test_binary_execute {
         let base64_encoded_file = BASE64_STANDARD.encode("echo Hello,\n world!");
         let arguments = "".to_string();
 
-        let create_task_request = CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+        let create_task_request =
+            CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
         let (stdout, stderr, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(stdout, "Hello,\n");
         assert_eq!(
@@ -148,6 +171,18 @@ mod test_binary_execute {
             )
         );
 
+        assert_eq!(task_status, TaskStatusEnum::ERROR);
+    }
+
+    #[tokio::test]
+    async fn test_non_exist_command() {
+        let id = "fb85a3a0-7e7f-4a20-8ced-65b3b2475145".to_string();
+        let base64_encoded_file = BASE64_STANDARD.encode("bimbimbambam");
+        let arguments = "".to_string();
+
+        let create_task_request =
+            CreateTaskRequest::new(TaskType::Bin, base64_encoded_file, arguments);
+        let (_, _, task_status) = execute_file(create_task_request, id).await;
         assert_eq!(task_status, TaskStatusEnum::ERROR);
     }
 }
