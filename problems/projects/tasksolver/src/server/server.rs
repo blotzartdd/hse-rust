@@ -7,7 +7,7 @@ use super::routes::routes_handler;
 use crate::server::models::responses::TaskStatusEnum;
 use crate::worker_pool::worker_pool::WorkerPool;
 
-use tokio::task;
+use tokio::task::{self, JoinHandle};
 use uuid::Uuid;
 use warp;
 
@@ -68,6 +68,7 @@ impl TaskStatus {
 /// Struct of server info that contains
 /// thread pool with workers, server queue of tasks
 /// and status of all tasks.
+#[derive(Clone)]
 pub struct ServerInfo {
     pub worker_pool: Arc<WorkerPool>,
     pub task_status: TaskStatus,
@@ -83,21 +84,24 @@ impl ServerInfo {
     }
 }
 
-/// Runs server on different ip and port. Creates worker pool with given
-/// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
-/// Await both threads.
-pub async fn start_tasksolver_server(workers_count: usize, ip: &str, port: u16) {
-    let socket = SocketAddr::new(ip.parse().unwrap(), port);
+/// TaskSolver server struct
+pub struct TaskSolverServer;
 
-    let (task_sender, task_receiver) = async_channel::unbounded();
-    let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
+impl TaskSolverServer {
+    /// Runs server on given ip and port. Creates worker pool with given
+    /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
+    pub async fn start_tasksolver_server(workers_count: usize, ip: String, port: u16) -> JoinHandle<()> {
+        let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
-    let task_status = TaskStatus::new();
-    let server_info = ServerInfo::new(worker_pool.clone(), task_status);
+        let (task_sender, task_receiver) = async_channel::unbounded();
+        let worker_pool = Arc::new(WorkerPool::new(workers_count, task_sender, task_receiver));
 
-    let server = task::spawn(async move {
-        warp::serve(routes_handler(server_info)).run(socket).await;
-    });
+        let task_status = TaskStatus::new();
+        let server_info = ServerInfo::new(worker_pool.clone(), task_status);
+        let server = task::spawn(async move {
+            warp::serve(routes_handler(server_info)).run(socket).await;
+        });
 
-    let _ = server.await;
+        server 
+    }
 }
