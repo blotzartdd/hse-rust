@@ -6,10 +6,12 @@ use tasksolver::server::server::TaskSolverServer;
 #[tokio::main]
 async fn main() {
     let server_start_arguments = ServerStartArguments::parse();
-    let tasksolver_server = TaskSolverServer::start_tasksolver_server(
+    let tasksolver_server = TaskSolverServer::new(
         server_start_arguments.workers_count,
         server_start_arguments.address,
         server_start_arguments.port,
-    ).await;
-    let _ = tasksolver_server.await;
+    );
+
+    let tasksolver_handle = tasksolver_server.start_tasksolver_server().await;
+    let _ = tasksolver_handle.await;
 }

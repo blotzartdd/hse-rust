@@ -85,12 +85,14 @@ impl ServerInfo {
 }
 
 /// TaskSolver server struct
-pub struct TaskSolverServer;
+pub struct TaskSolverServer {
+    socket: SocketAddr,
+    server_info: ServerInfo,
+}
 
 impl TaskSolverServer {
-    /// Runs server on given ip and port. Creates worker pool with given
-    /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
-    pub async fn start_tasksolver_server(workers_count: usize, ip: String, port: u16) -> JoinHandle<()> {
+    /// Creates new task solver server with given workers count, ip and port
+    pub fn new(workers_count: usize, ip: String, port: u16) -> TaskSolverServer { 
         let socket = SocketAddr::new(ip.parse().unwrap(), port);
 
         let (task_sender, task_receiver) = async_channel::unbounded();
@@ -98,8 +100,17 @@ impl TaskSolverServer {
 
         let task_status = TaskStatus::new();
         let server_info = ServerInfo::new(worker_pool.clone(), task_status);
+
+        TaskSolverServer {
+            socket,
+            server_info,
+        }
+    }
+    /// Runs server on given ip and port. Creates worker pool with given
+    /// amount of workers. Creates tokio threads to manage the server and task queue in parallel.
+    pub async fn start_tasksolver_server(self) -> JoinHandle<()> {
         let server = task::spawn(async move {
-            warp::serve(routes_handler(server_info)).run(socket).await;
+            warp::serve(routes_handler(self.server_info)).run(self.socket).await;
         });
 
         server 
